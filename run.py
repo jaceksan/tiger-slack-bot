@@ -17,6 +17,8 @@ slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "
 # Initialize a Web API client
 slack_web_client = WebClient(token=os.environ.get("SLACK_API_TOKEN"))
 
+HEROKU_PORT = os.getenv('PORT', 3000)
+
 
 def flip_coin(channel):
     """Craft the CoinBot, flip the coin and send the message to the channel
@@ -69,4 +71,5 @@ if __name__ == "__main__":
 
     # Run our app on our externally facing IP address on port 3000 instead of
     # running it on localhost, which is traditional for development.
-    app.run(host='0.0.0.0', port=3000)
+    logger.info(f'MAIN START - port={HEROKU_PORT}')
+    app.run(host='0.0.0.0', port=HEROKU_PORT)
