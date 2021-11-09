@@ -11,7 +11,7 @@ from coinbot import CoinBot
 
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
-# Create an events adapter and register it to an endpoint in the slack app for event injestion.
+# Create an events adapter and register it to an endpoint in the slack app for event ingestion.
 slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "/slack/events", app)
 
 # Initialize a Web API client
@@ -69,4 +69,4 @@ if __name__ == "__main__":
 
     # Run our app on our externally facing IP address on port 3000 instead of
     # running it on localhost, which is traditional for development.
-    app.run(host='0.0.0.0', port=3000)
+    app.run(host='0.0.0.0', port=80)
