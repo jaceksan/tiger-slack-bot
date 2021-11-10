@@ -1,1 +1,1 @@
-heroku config:add PORT=3000
+heroku config:add PORT=$1
