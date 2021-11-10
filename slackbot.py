@@ -3,7 +3,7 @@
 # (C) 2021 GoodData Corporation
 
 import os
-import logging
+# import logging
 from flask import Flask
 from slack import WebClient
 from slackeventsapi import SlackEventAdapter
@@ -59,17 +59,22 @@ def message(payload):
         return flip_coin(channel_id)
 
 
-if __name__ == "__main__":
-    # Create the logging object
-    logger = logging.getLogger()
+@app.route("/")
+def index():
+    return "Hello this is the new version!"
 
-    # Set the log level to DEBUG. This will increase verbosity of logging messages
-    logger.setLevel(logging.DEBUG)
 
-    # Add the StreamHandler as a logging handler
-    logger.addHandler(logging.StreamHandler())
-
-    # Run our app on our externally facing IP address on port 3000 instead of
-    # running it on localhost, which is traditional for development.
-    # logger.info(f'MAIN START - port={HEROKU_PORT}')
-    # app.run(host='0.0.0.0', port=HEROKU_PORT)
+# if __name__ == "__main__":
+#     # Create the logging object
+#     logger = logging.getLogger()
+#
+#     # Set the log level to DEBUG. This will increase verbosity of logging messages
+#     logger.setLevel(logging.DEBUG)
+#
+#     # Add the StreamHandler as a logging handler
+#     logger.addHandler(logging.StreamHandler())
+#
+#     # Run our app on our externally facing IP address on port 3000 instead of
+#     # running it on localhost, which is traditional for development.
+#     # logger.info(f'MAIN START - port={HEROKU_PORT}')
+#     # app.run(host='0.0.0.0', port=HEROKU_PORT)
