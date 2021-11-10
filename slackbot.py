@@ -71,5 +71,5 @@ if __name__ == "__main__":
 
     # Run our app on our externally facing IP address on port 3000 instead of
     # running it on localhost, which is traditional for development.
-    logger.info(f'MAIN START - port={HEROKU_PORT}')
-    app.run(host='0.0.0.0', port=HEROKU_PORT)
+    # logger.info(f'MAIN START - port={HEROKU_PORT}')
+    # app.run(host='0.0.0.0', port=HEROKU_PORT)
