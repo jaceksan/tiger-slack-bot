@@ -7,7 +7,7 @@ class Cache:
     def __init__(self):
         self._cache = {}
 
-    def put(self, atom, user, ttl=60):
+    def put(self, atom, user, ttl=90):
         ts = time.time()
         try:
             users = self._cache[atom]
@@ -53,7 +53,7 @@ def answer_from_history(q_user_id, text):
         return False, ""
 
     rand = random.random()
-    if rand > 0.5 + (0.5 * (len(results) / (len(atoms) + 1))):
+    if rand > 0.8 + (0.2 * (len(results) / (len(atoms) + 1))):
         for atom, _, _ in results:
             cache.put(atom, q_user_id)
         return False, "Lucky you, I answer even boring questions"
