@@ -5,7 +5,7 @@
 import os
 import re
 import uuid
-import tempfile
+import io
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from tabulate import tabulate
@@ -95,10 +95,13 @@ def message(payload):
         if request:
             df = report_client.execute(request['metrics'], request['labels'])
             if report_match.group(1) == 'tab':
-                with tempfile.TemporaryFile("w+t", encoding="utf-8") as tf:
-                    tf.write(tabulate(df, headers='keys', tablefmt='psql', showindex="never"))
-                    tf.seek(0)
-                    slack_client.send_file(channel_id, tf)
+                out_io = io.StringIO()
+                try:
+                    out_io.write(tabulate(df, headers='keys', tablefmt='psql', showindex="never"))
+                    out_io.seek(0)
+                    slack_client.send_file(channel_id, out_io)
+                finally:
+                    out_io.close()
             else:
                 file_path = '/tmp/' + str(uuid.uuid4()) + '.png'
                 with open(file_path, 'w+b') as fd:
