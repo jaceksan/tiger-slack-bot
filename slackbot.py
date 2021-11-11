@@ -168,28 +168,30 @@ def reply(payload):
                      "* `list insights`\n"\
                      "* `execute_tab`/`execute_csv`/`execute_vis` - execute request, i'll answer with table, csv ot vizualization :raised_hands:\n"
         slack_client.send_markdown_message(channel_id, help_hints, thread_id)
+
+    as_file_flag = "as file" in text
     if "list workspaces" in text:
         hit = True
         workspaces = metadata_client.list_workspaces()
-        send_tabulated_result(channel_id, 'Workspaces:\n-------\n', workspaces, thread_id, "as file" in text)
+        send_tabulated_result(channel_id, 'Workspaces:\n-------\n', workspaces, thread_id, as_file_flag)
     if "list data sources" in text:
         hit = True
         data_sources = metadata_client.list_data_sources()
-        send_tabulated_result(channel_id, 'Data sources:\n-------\n', data_sources, thread_id, "as file" in text)
+        send_tabulated_result(channel_id, 'Data sources:\n-------\n', data_sources, thread_id, as_file_flag)
     if "list labels" in text:
         hit = True
         labels = metadata_client.list_labels()
-        send_tabulated_result(channel_id, 'Labels:\n-------\n', labels, thread_id, "as file" in text)
+        send_tabulated_result(channel_id, 'Labels:\n-------\n', labels, thread_id, as_file_flag)
     if "list metrics" in text:
         hit = True
         metrics = metadata_client.list_metrics()
         facts = metadata_client.list_facts()
-        send_tabulated_result(channel_id, 'Metrics:\n-------\n', metrics, thread_id, "as file" in text)
-        send_tabulated_result(channel_id, 'Facts:\n-------\n', facts, thread_id, "as file" in text)
+        send_tabulated_result(channel_id, 'Metrics:\n-------\n', metrics, thread_id, as_file_flag)
+        send_tabulated_result(channel_id, 'Facts:\n-------\n', facts, thread_id, as_file_flag)
     if "list insights" in text:
         hit = True
         insights = metadata_client.list_insights()
-        send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id, "as file" in text)
+        send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id, as_file_flag)
 
     re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|vis) ', re.I)
     report_match = re_report.match(text)
