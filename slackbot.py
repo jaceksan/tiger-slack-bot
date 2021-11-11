@@ -12,6 +12,7 @@ from coinbot import CoinBot
 from tiger.report import Report
 from tiger.slackclient import SlackClient
 from tiger.metadata import Metadata
+import yaml
 
 
 ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
@@ -24,6 +25,11 @@ slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "
 
 # Initialize a Web API client
 slack_client = SlackClient()
+
+
+def read_config_from_file(config_file):
+    with open(config_file) as fp:
+        return yaml.safe_load(fp)
 
 
 def flip_coin(channel):
@@ -117,11 +123,21 @@ def reply(payload):
     # Init Report(Pandas) SDK
     report_client = Report(ENDPOINT, TOKEN, channel_id, metadata_client)
 
-    workspace_ids = metadata_client.get_workspace_ids()
-    if channel_id not in workspace_ids:
+    channels_2ws = read_config_from_file('slack_channels_2ws.yaml')
+    if channel_id in channels_2ws:
+        channel_name = channels_2ws[channel_id]
+    else:
         slack_client.send_markdown_message(
             channel_id,
-            [f"Error: channel {channel_id} does not have corresponding workspace\n"]
+            [f"Error: channel ID {channel_id} is not configured as GoodData.CN workspace\n"]
+        )
+        return
+
+    workspace_ids = metadata_client.get_workspace_ids()
+    if channel_name not in workspace_ids:
+        slack_client.send_markdown_message(
+            channel_id,
+            [f"Error: channel {channel_name} does not have corresponding workspace\n"]
         )
         return
 
