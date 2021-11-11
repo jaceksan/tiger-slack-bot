@@ -8,6 +8,7 @@ from slack import WebClient
 class SlackClient:
     def __init__(self):
         self.slack_web_client = WebClient(token=os.environ.get("SLACK_API_TOKEN"))
+        self._bots_info = self.slack_web_client.bots_info()
 
     @staticmethod
     def _get_block(texts):
@@ -30,3 +31,6 @@ class SlackClient:
 
     def send_message(self, channel, message):
         self.slack_web_client.chat_postMessage(channel=channel, text=message)
+
+    def bot_user_id(self):
+        self._bots_info.get("user_id", None)

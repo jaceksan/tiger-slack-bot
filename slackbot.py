@@ -50,10 +50,9 @@ def message(payload):
     # Get the text from the event that came through
     text = event.get("text").lower()
     channel_id = event.get("channel")
-    app_user_id = payload.get("user_id", None)
     source_user_id = event.get("user", None)
 
-    if f"<@{app_user_id}>" in text:
+    if f"<@{slack_client.bot_user_id()}>" in text:
         # someone mentioned me
         suffix = ""
         if source_user_id:
