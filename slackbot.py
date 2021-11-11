@@ -139,7 +139,7 @@ def reply(payload):
         insights = metadata_client.list_insights(WORKSPACE)
         send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id)
 
-    re_report = re.compile(r'^execute_(tab|csv|vis) ', re.I)
+    re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|vis) ', re.I)
     report_match = re_report.match(text)
     if report_match:
         hit = True
