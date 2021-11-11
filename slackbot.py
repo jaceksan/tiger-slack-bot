@@ -110,6 +110,14 @@ def message(payload):
             )
 
 
+def send_tabulated_result(channel_id, elements, thread_id):
+    slack_client.send_message(
+        channel_id,
+        tabulate(elements['data'], headers=elements['headers']),
+        thread_id
+    )
+
+
 @slack_events_adapter.on("app_mention")
 def reply(payload):
     """Parse messages only when the bot is mentioned"""
@@ -136,11 +144,15 @@ def reply(payload):
         slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_id)
     if "list labels" in text:
         hit = True
-        slack_client.send_message(channel_id, metadata_client.list_labels(WORKSPACE), thread_id)
+        labels = metadata_client.list_labels(WORKSPACE)
+        send_tabulated_result(channel_id, labels, thread_id)
     if "list metrics" in text:
         hit = True
         slack_client.send_message(channel_id, metadata_client.list_metrics(WORKSPACE), thread_id)
-
+        metrics = metadata_client.list_metrics(WORKSPACE)
+        facts = metadata_client.list_facts(WORKSPACE)
+        send_tabulated_result(channel_id, metrics, thread_id)
+        send_tabulated_result(channel_id, facts, thread_id)
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
 
