@@ -48,7 +48,9 @@ def message(payload):
     event = payload.get("event", {})
 
     # Get the text from the event that came through
-    text = event.get("text").lower()
+    text = event.get("text")
+    if text:
+        text = text.lower()
     channel_id = event.get("channel")
     source_user_id = event.get("user", None)
     thread_ts = event.get("thread_ts", None)
