@@ -13,7 +13,7 @@ class Report:
     @staticmethod
     def parse_request(re_report, request):
         query = re_report.sub('', request)
-        query_re = re.compile(r'^{([^}]+)} BY {([^}]+)}$', re.I)
+        query_re = re.compile(r'^(.*) BY (.*)$', re.I)
         query_match = query_re.search(query)
         if query_match:
             return {

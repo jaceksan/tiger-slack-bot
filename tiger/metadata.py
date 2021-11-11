@@ -34,9 +34,9 @@ class Metadata:
         return f"Registered data sources:\n{ds_output}"
 
     @staticmethod
-    def _get_entities_basic(result):
+    def _get_entities_basic(result, entity_prefix=''):
         data = [
-            [element['attributes']['title'], element['id']]
+            [element['attributes']['title'], entity_prefix + element['id']]
             for element in result.data
         ]
         return {
@@ -46,15 +46,15 @@ class Metadata:
 
     def list_labels(self, workspace_id):
         result = self.workspace_model.get_all_entities_labels(workspace_id, _check_return_type=False)
-        return self._get_entities_basic(result)
+        return self._get_entities_basic(result, 'label/')
 
     def list_metrics(self, workspace_id):
         result = self.workspace_model.get_all_entities_facts(workspace_id, _check_return_type=False)
-        return self._get_entities_basic(result)
+        return self._get_entities_basic(result, 'metric/')
 
     def list_facts(self, workspace_id):
         result = self.workspace_model.get_all_entities_metrics(workspace_id, _check_return_type=False)
-        return self._get_entities_basic(result)
+        return self._get_entities_basic(result, 'fact/')
 
     def list_insights(self, workspace_id):
         result = self.workspace_model.get_all_entities_visualization_objects(workspace_id, _check_return_type=False)
