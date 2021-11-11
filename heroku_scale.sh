@@ -1,1 +1,1 @@
-heroku ps:scale worker=$1
+heroku ps:scale -a tiger-slack-bot web=1

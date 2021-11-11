@@ -110,10 +110,10 @@ def message(payload):
             )
 
 
-def send_tabulated_result(channel_id, elements, thread_id):
+def send_tabulated_result(channel_id, prefix, elements, thread_id):
     slack_client.send_message(
         channel_id,
-        tabulate(elements['data'], headers=elements['headers'], tablefmt='psql'),
+        prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql'),
         thread_id
     )
 
@@ -145,17 +145,17 @@ def reply(payload):
     if "list labels" in text:
         hit = True
         labels = metadata_client.list_labels(WORKSPACE)
-        send_tabulated_result(channel_id, 'Labels:\n-------\n' + labels, thread_id)
+        send_tabulated_result(channel_id, 'Labels:\n-------\n', labels, thread_id)
     if "list metrics" in text:
         hit = True
         metrics = metadata_client.list_metrics(WORKSPACE)
         facts = metadata_client.list_facts(WORKSPACE)
-        send_tabulated_result(channel_id, 'Metrics:\n-------\n' + metrics, thread_id)
-        send_tabulated_result(channel_id, 'Facts:\n-------\n' + facts, thread_id)
+        send_tabulated_result(channel_id, 'Metrics:\n-------\n', metrics, thread_id)
+        send_tabulated_result(channel_id, 'Facts:\n-------\n', facts, thread_id)
     if "list insights" in text:
         hit = True
         insights = metadata_client.list_insights(WORKSPACE)
-        send_tabulated_result(channel_id, 'Insights:\n-------\n' + insights, thread_id)
+        send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id)
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
 
