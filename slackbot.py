@@ -81,9 +81,9 @@ def reply(payload):
     channel_id = event.get("channel")
 
     if text.startswith('list data sources'):
-        return slack_client.send_message(channel_id, metadata_client.list_data_sources())
+        slack_client.send_message(channel_id, metadata_client.list_data_sources())
     else:
-        return slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
+        slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
 
 
 @app.route("/")
