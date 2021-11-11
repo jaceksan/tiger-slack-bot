@@ -6,7 +6,6 @@ import os
 import re
 import uuid
 import tempfile
-import seaborn as sns
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from tabulate import tabulate
@@ -104,15 +103,6 @@ def process_report_exec(metadata_client, re_report, report_match, text, channel_
             file_path = base_path + '.csv'
             with open(file_path, 'wt') as fd:
                 df.to_csv(fd, index=False)
-        elif report_match.group(1) == 'sea':
-            sns.set_theme(style="darkgrid")
-            with tempfile.NamedTemporaryFile(mode="w+b", suffix="png") as fp:
-                plot = sns.lineplot(x=request['labels'][0]['title'], y=request['metrics'][0]['title'], data=df)
-                fig = plot.get_figure()
-                fig.savefig(fp)
-                fp.seek(0)
-                slack_client.send_file(channel_id, fp)
-                return
         else:
             file_path = base_path + '.png'
             with open(file_path, 'w+b') as fd:
@@ -219,7 +209,7 @@ def reply(payload):
         insights = metadata_client.list_insights()
         send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id, as_file_flag)
 
-    re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|vis|sea) ', re.I)
+    re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|vis) ', re.I)
     report_match = re_report.match(text)
     if report_match:
         hit = True

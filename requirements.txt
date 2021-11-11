@@ -12,7 +12,6 @@ setuptools >= 21.0.0
 urllib3 >= 1.25.3
 matplotlib >= 3.4.2
 PyYAML==5.3.1
-seaborn
 # sdk
 sdk/gooddata-afm-client-1.0.0.tar.gz
 sdk/gooddata-metadata-client-1.0.0.tar.gz
