@@ -77,7 +77,7 @@ def reply(payload):
     text = event.get("text")
     channel_id = event.get("channel")
 
-    return slack_client.send_markdown_message(channel_id, "Hello, thanks for mentioning me.\n")
+    return slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
 
 
 @app.route("/")
