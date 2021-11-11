@@ -27,3 +27,6 @@ class SlackClient:
             "blocks": self._get_block(texts),
         }
         self.slack_web_client.chat_postMessage(**payload)
+
+    def send_message(self, channel, message):
+        self.slack_web_client.chat_postMessage(channel=channel, text=message)

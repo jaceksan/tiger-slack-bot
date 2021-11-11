@@ -69,6 +69,9 @@ def message(payload):
             [metadata_client.list_workspaces()]
         )
 
+    if text.startswith('tiger_bot: list data sources'):
+        slack_client.send_message(channel_id, metadata_client.list_data_sources())
+
 
 @slack_events_adapter.on("app_mention")
 def reply(payload):
@@ -77,7 +80,10 @@ def reply(payload):
     text = event.get("text")
     channel_id = event.get("channel")
 
-    return slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
+    if text.startswith('list data sources'):
+        return slack_client.send_message(channel_id, metadata_client.list_data_sources())
+    else:
+        return slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
 
 
 @app.route("/")

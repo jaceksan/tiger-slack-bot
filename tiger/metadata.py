@@ -22,3 +22,12 @@ class Metadata:
                 workspace_parent_id = workspace['relationships']['parent']['data']['id']
             workspaces += f"- id={workspace_id} name={workspace_name} parent_workspace_id={workspace_parent_id}\n"
         return workspaces
+
+    def list_data_sources(self):
+        result = self.org_model.get_all_entities_data_sources(_check_return_type=False)
+        ds_lines = [
+            f"\tName:{ds['attributes']['name']} - Type:{ds['attributes']['type']} - Id: {ds['id']}"
+            for ds in result.data
+        ]
+        ds_output = "\n".join(ds_lines)
+        return f"Registered data sources:\n{ds_output}"
