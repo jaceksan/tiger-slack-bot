@@ -51,6 +51,7 @@ def message(payload):
     text = event.get("text").lower()
     channel_id = event.get("channel")
     source_user_id = event.get("user", None)
+    thread_ts = event.get("thread_ts", None)
 
     if f"<@{slack_client.bot_user_id()}>" in text:
         # someone mentioned me
@@ -75,7 +76,8 @@ def message(payload):
     if text.startswith('tiger_bot: list_workspaces'):
         slack_client.send_markdown_message(
             channel_id,
-            [metadata_client.list_workspaces()]
+            [metadata_client.list_workspaces()],
+            thread_ts=thread_ts
         )
 
     if text.startswith('tiger_bot: list data sources'):

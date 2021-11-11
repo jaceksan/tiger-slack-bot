@@ -22,11 +22,13 @@ class SlackClient:
             }
         } for text in texts]
 
-    def send_markdown_message(self, channel, texts):
+    def send_markdown_message(self, channel, texts, thread_ts=None):
         payload = {
             "channel": channel,
             "blocks": self._get_block(texts),
         }
+        if thread_ts:
+            payload['thread_ts'] = thread_ts
         self.slack_web_client.chat_postMessage(**payload)
 
     def send_message(self, channel, message):
