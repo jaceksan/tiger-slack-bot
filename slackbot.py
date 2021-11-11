@@ -149,6 +149,16 @@ def reply(payload):
         return
     metadata_client.workspace_id = workspace_id
 
+    if "help" in text:
+        hit = True
+        help_hints = ":bulb: Thank you for asking, there are few hints I can help you with:\n\n"\
+                     "* `list workspaces`\n"\
+                     "* `list data sources`\n"\
+                     "* `list labels`\n"\
+                     "* `list metrics`\n"\
+                     "* `list insights`\n"\
+                     "* `execute_tab`/`execute_csv`/`execute_vis` - execute request, i'll answer with table, csv ot vizualization :raised_hands:\n"
+        slack_client.send_markdown_message(channel_id, help_hints, thread_id)
     if "list workspaces" in text:
         hit = True
         workspaces = metadata_client.list_workspaces()
