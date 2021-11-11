@@ -9,6 +9,7 @@ class SlackClient:
     def __init__(self):
         self.slack_web_client = WebClient(token=os.environ.get("SLACK_API_TOKEN"))
         self._bots_info = self.slack_web_client.bots_info()
+        print(f"Bots info: {self._bots_info.data}")
 
     @staticmethod
     def _get_block(texts):
