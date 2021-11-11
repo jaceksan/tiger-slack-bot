@@ -32,7 +32,7 @@ def flip_coin(channel):
 
 
 def slap_the_slackbot(channel):
-    slack_client.send_markdown_message(channel, "Zmlkni Slackbote!\n")
+    slack_client.send_markdown_message(channel, ["Zmlkni Slackbote!\n"])
 
 
 # When a 'message' event is detected by the events adapter, forward that payload
