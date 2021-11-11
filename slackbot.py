@@ -164,9 +164,13 @@ def reply(payload):
             help_hints = [
                 ":speech_balloon: Thank you for asking, here is detailed doc about `exec_(tab,csv,vis)`:\n\n" +
                 "* Usage: `exec_*` metric1, metric2 BY label1, label2\n" +
-                "  * You can use only 1 metric / 1 label\n" +
-                "  * metric/label must be in form of ID with prefix, e.g. label/date.month or fact/order_lines.price\n" +
+                "\t* You can use only 1 metric / 1 label\n" +
+                "\t* metric/label must be in form of ID with prefix, e.g. label/date.month or fact/order_lines.price\n" +
                 "* Use `list labels/metrics` to get IDs\n" +
+                "* Types:\n" +
+                "\t* `tab` - pretty printed table\n" +
+                "\t* `csv` - CSV file as attachment\n" +
+                "\t* `vis` - chart rendered by `matplotlib`\n" +
                 ":raised_hands:\n"
             ]
             slack_client.send_markdown_message(channel_id, help_hints, thread_id)
@@ -179,7 +183,7 @@ def reply(payload):
                 "* `list labels`\n" +
                 "* `list metrics`\n" +
                 "* `list insights`\n" +
-                "* `execute_tab`/`execute_csv`/`execute_vis` - returns table, csv or vizualization\n\n" +
+                "* `execute_tab`/`execute_csv`/`execute_vis|sea` - returns table, csv or vizualization\n\n" +
                 " use `help exec` to learn more about it"
                 ":raised_hands:\n"
             ]
