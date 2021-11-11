@@ -18,7 +18,7 @@ class Metadata:
         return [w['id'] for w in result.data]
 
     def list_workspaces(self):
-        result = self.org_model.get_all_entities_workspaces(include='workspaces', _check_return_type=False)
+        result = self.org_model.get_all_entities_workspaces(include=['workspaces'], _check_return_type=False)
         data = [
             [element['attributes']['name'], element['id']]
             for element in result.data
