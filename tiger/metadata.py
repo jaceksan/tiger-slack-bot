@@ -33,8 +33,8 @@ class Metadata:
         ds_output = "\n".join(ds_lines)
         return f"Registered data sources:\n{ds_output}"
 
-    def list_labels(self):
-        result = self.workspace_model.get_all_entities_labels(_check_return_type=False)
+    def list_labels(self, workspace_id):
+        result = self.workspace_model.get_all_entities_labels(workspace_id, _check_return_type=False)
         ls_lines = [
             f"\tName:{ls['attributes']['name']} - Id: {ls['id']}"
             for ls in result.data
