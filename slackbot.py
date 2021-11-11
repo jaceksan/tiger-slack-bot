@@ -3,11 +3,11 @@
 # (C) 2021 GoodData Corporation
 
 import os
-# import logging
 from flask import Flask
-from slack import WebClient
 from slackeventsapi import SlackEventAdapter
 from coinbot import CoinBot
+from tiger.slackclient import SlackClient
+from tiger.metadata import Metadata
 
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
@@ -15,7 +15,10 @@ app = Flask(__name__)
 slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "/slack/events", app)
 
 # Initialize a Web API client
-slack_web_client = WebClient(token=os.environ.get("SLACK_API_TOKEN"))
+slack_client = SlackClient()
+
+# Init metadata SDK
+metadata_client = Metadata('https://hackaton.anywhere.gooddata.com', os.environ.get('TIGER_API_TOKEN'))
 
 HEROKU_PORT = os.getenv('PORT', 3000)
 
@@ -24,30 +27,13 @@ def flip_coin(channel):
     """Craft the CoinBot, flip the coin and send the message to the channel
     """
     # Create a new CoinBot
-    coin_bot = CoinBot(channel)
+    coin_bot = CoinBot()
+    slack_client.send_markdown_message(channel, [coin_bot.COIN_START_BLOCK, coin_bot.flip_coin()])
 
-    # Get the onboarding message payload
-    message = coin_bot.get_message_payload()
-
-    # Post the onboarding message in Slack
-    slack_web_client.chat_postMessage(**message)
 
 def slap_the_slackbot(channel):
-    payload = {
-        "channel": channel,
-        "blocks": [
-            {
-            "type": "section",
-            "text": {
-                "type": "mrkdwn",
-                "text": (
-                    "Zmlkni Slackbote!\n"
-                ),
-            },
-            }
-        ],
-    }
-    slack_web_client.chat_postMessage(**payload)
+    slack_client.send_markdown_message(channel, "Zmlkni Slackbote!\n")
+
 
 # When a 'message' event is detected by the events adapter, forward that payload
 # to this function.
@@ -61,12 +47,12 @@ def message(payload):
     event = payload.get("event", {})
 
     # Get the text from the event that came through
-    text = event.get("text")
+    text = event.get("text").lower()
     channel_id = event.get("channel")
 
     # Check and see if the activation phrase was in the text of the message.
     # If so, execute the code to flip a coin.
-    if "hey sammy, flip a coin" in text.lower():
+    if "hey sammy, flip a coin" in text:
         # Since the activation phrase was met, get the channel ID that the event
         # was executed on
 
@@ -74,26 +60,16 @@ def message(payload):
         # flipping a coin to the channel
         return flip_coin(channel_id)
 
-    if "aaaaaaaaaaaa" in text.lower():
+    if "aaaaaaaaaaaa" in text:
         return slap_the_slackbot(channel_id)
+
+    if text.startswith('tiger_bot: list_workspaces'):
+        slack_client.send_markdown_message(
+            channel_id,
+            [metadata_client.list_workspaces()]
+        )
 
 
 @app.route("/")
 def index():
     return "Hello this is the new version!"
-
-
-# if __name__ == "__main__":
-#     # Create the logging object
-#     logger = logging.getLogger()
-#
-#     # Set the log level to DEBUG. This will increase verbosity of logging messages
-#     logger.setLevel(logging.DEBUG)
-#
-#     # Add the StreamHandler as a logging handler
-#     logger.addHandler(logging.StreamHandler())
-#
-#     # Run our app on our externally facing IP address on port 3000 instead of
-#     # running it on localhost, which is traditional for development.
-#     # logger.info(f'MAIN START - port={HEROKU_PORT}')
-#     # app.run(host='0.0.0.0', port=HEROKU_PORT)
