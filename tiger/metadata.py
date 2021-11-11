@@ -55,11 +55,11 @@ class Metadata:
         return self._get_entities_basic(result, 'label/')
 
     def list_metrics(self):
-        result = self.workspace_model.get_all_entities_facts(self.workspace_id, _check_return_type=False)
+        result = self.workspace_model.get_all_entities_metrics(self.workspace_id, _check_return_type=False)
         return self._get_entities_basic(result, 'metric/')
 
     def list_facts(self):
-        result = self.workspace_model.get_all_entities_metrics(self.workspace_id, _check_return_type=False)
+        result = self.workspace_model.get_all_entities_facts(self.workspace_id, _check_return_type=False)
         return self._get_entities_basic(result, 'fact/')
 
     def list_insights(self):
