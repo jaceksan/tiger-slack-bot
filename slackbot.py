@@ -3,11 +3,19 @@
 # (C) 2021 GoodData Corporation
 
 import os
+import re
+import uuid
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from coinbot import CoinBot
+from tiger.report import Report
 from tiger.slackclient import SlackClient
 from tiger.metadata import Metadata
+
+
+ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
+TOKEN = os.environ.get('TIGER_API_TOKEN')
+WORKSPACE = 'hackaton'
 
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
@@ -18,9 +26,9 @@ slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "
 slack_client = SlackClient()
 
 # Init metadata SDK
-metadata_client = Metadata('https://hackaton.anywhere.gooddata.com', os.environ.get('TIGER_API_TOKEN'))
-
-HEROKU_PORT = os.getenv('PORT', 3000)
+metadata_client = Metadata(ENDPOINT, TOKEN)
+# Init Report(Pandas) SDK
+report_client = Report(ENDPOINT, TOKEN, WORKSPACE)
 
 
 def flip_coin(channel):
@@ -77,6 +85,27 @@ def message(payload):
 
     if text.startswith('tiger_bot: list data sources'):
         slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_ts)
+
+    re_report = re.compile(r'^tiger_bot: execute_(tab|vis) ', re.I)
+    report_match = re_report.match(text)
+    if report_match:
+        request = report_client.parse_request(re_report, text)
+        if request:
+            df = report_client.execute(request['metrics'], request['labels'])
+            if report_match.group(1) == 'tab':
+                file_path = '/tmp/' + str(uuid.uuid4()) + '.csv'
+                with open(file_path, 'w') as fd:
+                    df.to_csv(fd)
+            else:
+                file_path = '/tmp/' + str(uuid.uuid4()) + '.png'
+                with open(file_path, 'w+b') as fd:
+                    plot = report_client.plot_vis(df)
+                    plot.savefig(fd)
+            slack_client.send_file(channel_id, file_path)
+        else:
+            slack_client.send_markdown_message(
+                channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
+            )
 
 
 @slack_events_adapter.on("app_mention")
