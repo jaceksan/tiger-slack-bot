@@ -12,7 +12,6 @@ class Report:
         self.gp = GoodPandas(host=host, token=api_key)
         self.frames = self.gp.data_frames(workspace_id)
         self.metadata_client = metadata_client
-        self.workspace_id = workspace_id
 
     def parse_request(self, re_report, request):
         query = re_report.sub('', request)

@@ -79,9 +79,9 @@ def send_tabulated_result(channel_id, prefix, elements, thread_id):
     )
 
 
-def process_report_exec(metadata_client, re_report, report_match, text, channel_id):
+def process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id):
     # Init Report(Pandas) SDK
-    report_client = Report(ENDPOINT, TOKEN, channel_id, metadata_client)
+    report_client = Report(ENDPOINT, TOKEN, workspace_id, metadata_client)
     request = report_client.parse_request(re_report, text)
     if request:
         df = report_client.execute(request['metrics'], request['labels'])
@@ -125,7 +125,7 @@ def reply(payload):
 
     channels_2ws = read_config_from_file('slack_channels_2ws.yaml')
     if channel_id in channels_2ws:
-        channel_name = channels_2ws[channel_id]
+        workspace_id = channels_2ws[channel_id]
     else:
         slack_client.send_markdown_message(
             channel_id,
@@ -134,13 +134,13 @@ def reply(payload):
         return
 
     workspace_ids = metadata_client.get_workspace_ids()
-    if channel_name not in workspace_ids:
+    if workspace_id not in workspace_ids:
         slack_client.send_markdown_message(
             channel_id,
-            [f"Error: channel {channel_name} does not have corresponding workspace\n"]
+            [f"Error: workspace {workspace_id} configured for channel {channel_id} does not exist\n"]
         )
         return
-    metadata_client.workspace_id = channel_name
+    metadata_client.workspace_id = workspace_id
 
     if "list workspaces" in text:
         hit = True
@@ -167,7 +167,7 @@ def reply(payload):
     report_match = re_report.match(text)
     if report_match:
         hit = True
-        process_report_exec(metadata_client, re_report, report_match, text, channel_id)
+        process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id)
 
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
