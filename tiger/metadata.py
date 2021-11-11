@@ -6,12 +6,12 @@ from gooddata_sdk import GoodDataApiClient
 
 
 class Metadata:
-    def __init__(self, host, api_key, workspace_id):
+    def __init__(self, host, api_key):
         client = GoodDataApiClient(host=host, token=api_key)
         md_client = client.metadata_client
         self.org_model = organization_model_controller_api.OrganizationModelControllerApi(md_client)
         self.workspace_model = workspace_object_controller_api.WorkspaceObjectControllerApi(md_client)
-        self.workspace_id = workspace_id
+        self.workspace_id = None
 
     def get_workspace_ids(self):
         result = self.org_model.get_all_entities_workspaces(_check_return_type=False)
