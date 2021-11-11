@@ -44,13 +44,8 @@ def slap_the_slackbot(channel):
     slack_client.send_markdown_message(channel, ["Zmlkni Slackbote!\n"])
 
 
-# When a 'message' event is detected by the events adapter, forward that payload
-# to this function.
 @slack_events_adapter.on("message")
 def message(payload):
-    """Parse the message event, and if the activation string is in the text,
-    simulate a coin flip and send the result.
-    """
     print(f"Event: message, payload: {payload}")
 
     # Get the event data from the payload
@@ -61,8 +56,6 @@ def message(payload):
     if text:
         text = text.lower()
     channel_id = event.get("channel")
-    source_user_id = event.get("user", None)
-    thread_ts = event.get("thread_ts", None)
 
     # Check and see if the activation phrase was in the text of the message.
     # If so, execute the code to flip a coin.
@@ -77,38 +70,6 @@ def message(payload):
     if "aaaaaaaaaaaa" in text:
         return slap_the_slackbot(channel_id)
 
-    if text.startswith('tiger_bot: list_workspaces'):
-        slack_client.send_markdown_message(
-            channel_id,
-            [metadata_client.list_workspaces()],
-            thread_ts=thread_ts
-        )
-
-    if text.startswith('tiger_bot: list data sources'):
-        slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_ts)
-
-    re_report = re.compile(r'^tiger_bot: execute_(tab|vis) ', re.I)
-    report_match = re_report.match(text)
-    if report_match:
-        request = report_client.parse_request(re_report, text)
-        if request:
-            df = report_client.execute(request['metrics'], request['labels'])
-            if report_match.group(1) == 'tab':
-                file_path = '/tmp/' + str(uuid.uuid4()) + '.txt'
-                with open(file_path, 'wt') as fd:
-                    fd.write(tabulate(df, headers='keys', tablefmt='psql', showindex="never"))
-                slack_client.send_file(channel_id, file_path)
-            else:
-                file_path = '/tmp/' + str(uuid.uuid4()) + '.png'
-                with open(file_path, 'w+b') as fd:
-                    plot = report_client.plot_vis(df)
-                    plot.savefig(fd)
-                slack_client.send_file(channel_id, file_path)
-        else:
-            slack_client.send_markdown_message(
-                channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
-            )
-
 
 def send_tabulated_result(channel_id, prefix, elements, thread_id):
     slack_client.send_message(
@@ -116,6 +77,31 @@ def send_tabulated_result(channel_id, prefix, elements, thread_id):
         prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql'),
         thread_id
     )
+
+
+def process_report_exec(re_report, report_match, text, channel_id):
+    request = report_client.parse_request(re_report, text)
+    if request:
+        df = report_client.execute(request['metrics'], request['labels'])
+        base_path = '/tmp/' + str(uuid.uuid4())
+        if report_match.group(1) == 'tab':
+            file_path = base_path + '.txt'
+            with open(file_path, 'wt') as fd:
+                fd.write(tabulate(df, headers='keys', tablefmt='psql', showindex="never"))
+        elif report_match.group(1) == 'csv':
+            file_path = base_path + '.csv'
+            with open(file_path, 'wt') as fd:
+                df.to_csv(fd, index=False)
+        else:
+            file_path = base_path + '.png'
+            with open(file_path, 'w+b') as fd:
+                plot = report_client.plot_vis(df)
+                plot.savefig(fd)
+        slack_client.send_file(channel_id, file_path)
+    else:
+        slack_client.send_markdown_message(
+            channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
+        )
 
 
 @slack_events_adapter.on("app_mention")
@@ -134,11 +120,7 @@ def reply(payload):
 
     if "list workspaces" in text:
         hit = True
-        slack_client.send_markdown_message(
-            channel_id,
-            [metadata_client.list_workspaces()],
-            thread_ts=thread_id
-        )
+        slack_client.send_markdown_message(channel_id, [metadata_client.list_workspaces()], thread_id)
     if "list data sources" in text:
         hit = True
         slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_id)
@@ -156,6 +138,13 @@ def reply(payload):
         hit = True
         insights = metadata_client.list_insights(WORKSPACE)
         send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id)
+
+    re_report = re.compile(r'^execute_(tab|csv|vis) ', re.I)
+    report_match = re_report.match(text)
+    if report_match:
+        hit = True
+        process_report_exec(re_report, report_match, text, channel_id)
+
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
 
