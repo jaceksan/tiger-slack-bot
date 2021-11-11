@@ -138,6 +138,9 @@ def reply(payload):
     if "list labels" in text:
         hit = True
         slack_client.send_message(channel_id, metadata_client.list_labels(WORKSPACE), thread_id)
+    if "list metrics" in text:
+        hit = True
+        slack_client.send_message(channel_id, metadata_client.list_metrics(WORKSPACE), thread_id)
 
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])

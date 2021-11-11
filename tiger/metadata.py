@@ -33,11 +33,21 @@ class Metadata:
         ds_output = "\n".join(ds_lines)
         return f"Registered data sources:\n{ds_output}"
 
+    @staticmethod
+    def _get_entity_basic_lines(result):
+        lines = [
+            f"\tName:{element['attributes']['title']} - Id: {element['id']}"
+            for element in result.data
+        ]
+        return "\n".join(lines)
+
     def list_labels(self, workspace_id):
         result = self.workspace_model.get_all_entities_labels(workspace_id, _check_return_type=False)
-        ls_lines = [
-            f"\tName:{ls['attributes']['name']} - Id: {ls['id']}"
-            for ls in result.data
-        ]
-        ls_output = "\n".join(ls_lines)
-        return f"Labels:\n{ls_output}"
+        return f"Labels:\n{self._get_entity_basic_lines(result)}"
+
+    def list_metrics(self, workspace_id):
+        result = self.workspace_model.get_all_entities_facts(workspace_id, _check_return_type=False)
+        facts = self._get_entity_basic_lines(result)
+        result = self.workspace_model.get_all_entities_metrics(workspace_id, _check_return_type=False)
+        metrics = self._get_entity_basic_lines(result)
+        return f"Facts:\n{facts}\n\nMetrics:{metrics}"
