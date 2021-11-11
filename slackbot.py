@@ -144,10 +144,12 @@ def reply(payload):
 
     if "list workspaces" in text:
         hit = True
-        slack_client.send_markdown_message(channel_id, [metadata_client.list_workspaces()], thread_id)
+        workspaces = metadata_client.list_workspaces()
+        send_tabulated_result(channel_id, 'Workspaces:\n-------\n', workspaces, thread_id)
     if "list data sources" in text:
         hit = True
-        slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_id)
+        data_sources = metadata_client.list_data_sources()
+        send_tabulated_result(channel_id, 'Data sources:\n-------\n', data_sources, thread_id)
     if "list labels" in text:
         hit = True
         labels = metadata_client.list_labels()

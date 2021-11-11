@@ -18,25 +18,26 @@ class Metadata:
         return [w['id'] for w in result.data]
 
     def list_workspaces(self):
-        result = self.org_model.get_all_entities_workspaces(_check_return_type=False)
-        workspaces = ""
-        for workspace in result.data:
-            self.workspace_id = workspace['id']
-            workspace_name = workspace['attributes']['name']
-            workspace_parent_id = ''
-            if 'relationships' in workspace:
-                workspace_parent_id = workspace['relationships']['parent']['data']['id']
-            workspaces += f"- id={self.workspace_id} name={workspace_name} parent_self.workspace_id={workspace_parent_id}\n"
-        return workspaces
+        result = self.org_model.get_all_entities_workspaces(include='workspaces', _check_return_type=False)
+        data = [
+            [element['attributes']['name'], element['id']]
+            for element in result.data
+        ]
+        return {
+            'headers': ['Name', 'Id'],
+            'data': data
+        }
 
     def list_data_sources(self):
         result = self.org_model.get_all_entities_data_sources(_check_return_type=False)
-        ds_lines = [
-            f"\tName:{ds['attributes']['name']} - Type:{ds['attributes']['type']} - Id: {ds['id']}"
-            for ds in result.data
+        data = [
+            [element['attributes']['name'], element['attributes']['type'], element['attributes']['url'], element['id']]
+            for element in result.data
         ]
-        ds_output = "\n".join(ds_lines)
-        return f"Registered data sources:\n{ds_output}"
+        return {
+            'headers': ['Name', 'Type', 'Url', 'Id'],
+            'data': data
+        }
 
     @staticmethod
     def _get_entities_basic(result, entity_prefix=''):
