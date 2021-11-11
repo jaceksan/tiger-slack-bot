@@ -32,6 +32,22 @@ def flip_coin(channel):
     # Post the onboarding message in Slack
     slack_web_client.chat_postMessage(**message)
 
+def slap_the_slackbot(channel):
+    payload = {
+        "channel": channel,
+        "blocks": [
+            {
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": (
+                    "Zmlkni Slackbote!\n"
+                ),
+            },
+            }
+        ],
+    }
+    slack_web_client.chat_postMessage(**payload)
 
 # When a 'message' event is detected by the events adapter, forward that payload
 # to this function.
@@ -46,17 +62,20 @@ def message(payload):
 
     # Get the text from the event that came through
     text = event.get("text")
+    channel_id = event.get("channel")
 
     # Check and see if the activation phrase was in the text of the message.
     # If so, execute the code to flip a coin.
     if "hey sammy, flip a coin" in text.lower():
         # Since the activation phrase was met, get the channel ID that the event
         # was executed on
-        channel_id = event.get("channel")
 
         # Execute the flip_coin function and send the results of
         # flipping a coin to the channel
         return flip_coin(channel_id)
+
+    if "aaaaaaaaaaaa" in text.lower():
+        return slap_the_slackbot(channel_id)
 
 
 @app.route("/")
