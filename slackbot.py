@@ -16,7 +16,6 @@ from tiger.metadata import Metadata
 
 ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
 TOKEN = os.environ.get('TIGER_API_TOKEN')
-WORKSPACE = 'hackaton'
 
 # Initialize a Flask app to host the events adapter
 app = Flask(__name__)
@@ -25,11 +24,6 @@ slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "
 
 # Initialize a Web API client
 slack_client = SlackClient()
-
-# Init metadata SDK
-metadata_client = Metadata(ENDPOINT, TOKEN, WORKSPACE)
-# Init Report(Pandas) SDK
-report_client = Report(ENDPOINT, TOKEN, WORKSPACE, metadata_client)
 
 
 def flip_coin(channel):
@@ -79,7 +73,7 @@ def send_tabulated_result(channel_id, prefix, elements, thread_id):
     )
 
 
-def process_report_exec(re_report, report_match, text, channel_id):
+def process_report_exec(report_client, re_report, report_match, text, channel_id):
     request = report_client.parse_request(re_report, text)
     if request:
         df = report_client.execute(request['metrics'], request['labels'])
@@ -118,6 +112,19 @@ def reply(payload):
     source_user_id = event.get("user", None)
     hit = False
 
+    # Init metadata SDK
+    metadata_client = Metadata(ENDPOINT, TOKEN, channel_id)
+    # Init Report(Pandas) SDK
+    report_client = Report(ENDPOINT, TOKEN, channel_id, metadata_client)
+
+    workspace_ids = metadata_client.get_workspace_ids()
+    if channel_id not in workspace_ids:
+        slack_client.send_markdown_message(
+            channel_id,
+            [f"Error: channel {channel_id} does not have corresponding workspace\n"]
+        )
+        return
+
     if "list workspaces" in text:
         hit = True
         slack_client.send_markdown_message(channel_id, [metadata_client.list_workspaces()], thread_id)
@@ -143,7 +150,7 @@ def reply(payload):
     report_match = re_report.match(text)
     if report_match:
         hit = True
-        process_report_exec(re_report, report_match, text, channel_id)
+        process_report_exec(report_client, re_report, report_match, text, channel_id)
 
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])

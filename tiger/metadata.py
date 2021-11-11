@@ -13,6 +13,10 @@ class Metadata:
         self.workspace_model = workspace_object_controller_api.WorkspaceObjectControllerApi(md_client)
         self.workspace_id = workspace_id
 
+    def get_workspace_ids(self):
+        result = self.org_model.get_all_entities_workspaces(_check_return_type=False)
+        return [w['id'] for w in result.data]
+
     def list_workspaces(self):
         result = self.org_model.get_all_entities_workspaces(_check_return_type=False)
         workspaces = ""
