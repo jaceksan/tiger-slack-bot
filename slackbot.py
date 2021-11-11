@@ -50,6 +50,15 @@ def message(payload):
     # Get the text from the event that came through
     text = event.get("text").lower()
     channel_id = event.get("channel")
+    app_user_id = payload.get("user_id", None)
+    source_user_id = event.get("user", None)
+
+    if f"<@{app_user_id}>" in text:
+        # someone mentioned me
+        suffix = ""
+        if source_user_id:
+            suffix = f"<@{source_user_id}>"
+        return slack_client.send_message(channel_id, f"What do you want {suffix}? WIP baby.")
 
     # Check and see if the activation phrase was in the text of the message.
     # If so, execute the code to flip a coin.
@@ -83,10 +92,7 @@ def reply(payload):
     text = event.get("text")
     channel_id = event.get("channel")
 
-    if text.startswith('list data sources'):
-        slack_client.send_message(channel_id, metadata_client.list_data_sources())
-    else:
-        slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
+    slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
 
 
 @app.route("/")
