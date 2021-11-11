@@ -13,6 +13,7 @@ from tiger.report import Report
 from tiger.slackclient import SlackClient
 from tiger.metadata import Metadata
 import yaml
+from tiger.history import answer_from_history
 
 
 ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
@@ -119,6 +120,12 @@ def reply(payload):
     thread_id = event.get("thread_ts", None)
     source_user_id = event.get("user", None)
     hit = False
+
+    answered, history_msg = answer_from_history(source_user_id, text)
+    if history_msg:
+        slack_client.send_message(channel_id, history_msg, thread_id)
+    if answered:
+        return
 
     # Init metadata SDK
     metadata_client = Metadata(ENDPOINT, TOKEN)
