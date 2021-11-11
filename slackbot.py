@@ -42,6 +42,7 @@ def message(payload):
     """Parse the message event, and if the activation string is in the text,
     simulate a coin flip and send the result.
     """
+    print(f"Event: message, payload: {payload}")
 
     # Get the event data from the payload
     event = payload.get("event", {})
@@ -76,6 +77,8 @@ def message(payload):
 @slack_events_adapter.on("app_mention")
 def reply(payload):
     """Parse messages only when the bot is mentioned"""
+    print(f"Event: app_mention, payload: {payload}")
+
     event = payload.get("event", {})
     text = event.get("text")
     channel_id = event.get("channel")
