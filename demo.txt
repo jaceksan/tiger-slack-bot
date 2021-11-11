@@ -1,0 +1,13 @@
+
+
+# Demo WS
+@TigerDemoBot list workspaces
+@TigerDemoBot list data sources
+@TigerDemoBot list metrics
+@TigerDemoBot list labels
+@TigerDemoBot execute_tab fact/order_lines.quantity, fact/order_lines.price BY label/date.month, label/customers.region
+@TigerDemoBot execute_csv fact/order_lines.quantity, fact/order_lines.price BY label/date.month, label/customers.region
+@TigerDemoBot execute_vis fact/order_lines.quantity BY label/date.month
+
+# Demo West WS
+@TigerDemoBot execute_tab fact/demo:order_lines.quantity, fact/demo:order_lines.price BY label/demo:date.month, label/demo:customers.region
