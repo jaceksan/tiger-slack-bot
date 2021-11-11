@@ -69,6 +69,7 @@ def message(payload):
             [metadata_client.list_workspaces()]
         )
 
+
 @slack_events_adapter.on("app_mention")
 def reply(payload):
     """Parse messages only when the bot is mentioned"""
@@ -77,6 +78,7 @@ def reply(payload):
     channel_id = event.get("channel")
 
     return slack_client.send_markdown_message(channel_id, "Hello, thanks for mentioning me.\n")
+
 
 @app.route("/")
 def index():
