@@ -158,16 +158,33 @@ def reply(payload):
         return
     metadata_client.workspace_id = workspace_id
 
-    if "help" in text:
-        hit = True
-        help_hints = [":speech_balloon: Thank you for asking, there are few hints I can help you with:\n\n"\
-                     "* `list workspaces` \n"\
-                     "* `list data sources`\n"\
-                     "* `list labels`\n"\
-                     "* `list metrics`\n"\
-                     "* `list insights`\n"\
-                     "* `execute_tab`/`execute_csv`/`execute_vis` - execute request, will return table, csv or vizualization :raised_hands:\n"]
-        slack_client.send_markdown_message(channel_id, help_hints, thread_id)
+    help_re = re.compile(r'^<[^>]+> help')
+    if help_re.match(text):
+        if "help exec" in text:
+            hit = True
+            help_hints = [
+                ":speech_balloon: Thank you for asking, here is detailed doc about `exec_(tab,csv,vis)`:\n\n" +
+                "* Usage: `exec_*` metric1, metric2 BY label1, label2\n" +
+                "  * You can use only 1 metric / 1 label\n" +
+                "  * metric/label must be in form of ID with prefix, e.g. label/date.month or fact/order_lines.price\n" +
+                "* Use `list labels/metrics` to get IDs\n" +
+                ":raised_hands:\n"
+            ]
+            slack_client.send_markdown_message(channel_id, help_hints, thread_id)
+        elif "help" in text:
+            hit = True
+            help_hints = [
+                ":speech_balloon: Thank you for asking, there are few hints I can help you with:\n\n" +
+                "* `list workspaces` \n" +
+                "* `list data sources`\n" +
+                "* `list labels`\n" +
+                "* `list metrics`\n" +
+                "* `list insights`\n" +
+                "* `execute_tab`/`execute_csv`/`execute_vis` - returns table, csv or vizualization\n\n" +
+                " use `help exec` to learn more about it"
+                ":raised_hands:\n"
+            ]
+            slack_client.send_markdown_message(channel_id, help_hints, thread_id)
 
     as_file_flag = "as file" in text
     if "list workspaces" in text:

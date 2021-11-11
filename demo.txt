@@ -2,6 +2,7 @@
 
 # Demo WS
 @TigerDemoBot help
+@TigerDemoBot help exec
 
 @TigerDemoBot list workspaces
 @TigerDemoBot list data sources
