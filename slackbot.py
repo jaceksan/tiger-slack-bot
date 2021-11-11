@@ -160,13 +160,13 @@ def reply(payload):
 
     if "help" in text:
         hit = True
-        help_hints = ":bulb: Thank you for asking, there are few hints I can help you with:\n\n"\
-                     "* `list workspaces`\n"\
+        help_hints = [":speech_balloon: Thank you for asking, there are few hints I can help you with:\n\n"\
+                     "* `list workspaces` \n"\
                      "* `list data sources`\n"\
                      "* `list labels`\n"\
                      "* `list metrics`\n"\
                      "* `list insights`\n"\
-                     "* `execute_tab`/`execute_csv`/`execute_vis` - execute request, i'll answer with table, csv ot vizualization :raised_hands:\n"
+                     "* `execute_tab`/`execute_csv`/`execute_vis` - execute request, will return table, csv or vizualization :raised_hands:\n"]
         slack_client.send_markdown_message(channel_id, help_hints, thread_id)
 
     as_file_flag = "as file" in text
