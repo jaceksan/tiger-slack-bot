@@ -36,9 +36,13 @@ class SlackClient:
             payload['thread_ts'] = thread_ts
         self.slack_web_client.chat_postMessage(channel=channel, text=message, **payload)
 
-    def send_file(self, channel, file_path):
+    def send_file(self, channel, file_path, thread_ts=None):
+        payload = {}
+        if thread_ts:
+            payload['thread_ts'] = thread_ts
         self.slack_web_client.files_upload(
             channels=channel,
             file=file_path,
-            title='Insight'
+            title='Insight',
+            **payload
         )

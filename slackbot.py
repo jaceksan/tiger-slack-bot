@@ -5,6 +5,7 @@
 import os
 import re
 import uuid
+import tempfile
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from tabulate import tabulate
@@ -73,11 +74,11 @@ def message(payload):
 
 
 def send_tabulated_result(channel_id, prefix, elements, thread_id):
-    slack_client.send_message(
-        channel_id,
-        prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql'),
-        thread_id
-    )
+    with tempfile.NamedTemporaryFile(mode="w+b") as fp:
+        msg = prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql')
+        fp.write(msg.encode('utf-8'))
+        fp.seek(0)
+        slack_client.send_file(channel_id, fp, thread_id=thread_id)
 
 
 def process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id):
