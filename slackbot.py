@@ -55,13 +55,6 @@ def message(payload):
     source_user_id = event.get("user", None)
     thread_ts = event.get("thread_ts", None)
 
-    if f"<@{slack_client.bot_user_id()}>" in text:
-        # someone mentioned me
-        suffix = ""
-        if source_user_id:
-            suffix = f"<@{source_user_id}>"
-        return slack_client.send_message(channel_id, f"What do you want {suffix}? WIP baby.")
-
     # Check and see if the activation phrase was in the text of the message.
     # If so, execute the code to flip a coin.
     if "hey sammy, flip a coin" in text:
@@ -83,7 +76,7 @@ def message(payload):
         )
 
     if text.startswith('tiger_bot: list data sources'):
-        slack_client.send_message(channel_id, metadata_client.list_data_sources())
+        slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_ts)
 
 
 @slack_events_adapter.on("app_mention")
@@ -93,16 +86,26 @@ def reply(payload):
 
     event = payload.get("event", {})
     text = event.get("text")
+    if text:
+        text = text.lower()
     channel_id = event.get("channel")
     thread_id = event.get("thread_ts", None)
+    source_user_id = event.get("user", None)
+    hit = False
 
-    if "list data sources" in text.lower():
+    if "list workspaces" in text:
+        hit = True
         slack_client.send_markdown_message(
             channel_id,
             [metadata_client.list_workspaces()],
-            thread_ts=thread_ts
+            thread_ts=thread_id
         )
-    slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
+    if "list data sources" in text:
+        hit = True
+        slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_id)
+
+    if not hit:
+        slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
 
 
 @app.route("/")
