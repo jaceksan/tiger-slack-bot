@@ -27,9 +27,9 @@ slack_events_adapter = SlackEventAdapter(os.environ.get("SLACK_EVENTS_TOKEN"), "
 slack_client = SlackClient()
 
 # Init metadata SDK
-metadata_client = Metadata(ENDPOINT, TOKEN)
+metadata_client = Metadata(ENDPOINT, TOKEN, WORKSPACE)
 # Init Report(Pandas) SDK
-report_client = Report(ENDPOINT, TOKEN, WORKSPACE)
+report_client = Report(ENDPOINT, TOKEN, WORKSPACE, metadata_client)
 
 
 def flip_coin(channel):
@@ -95,7 +95,7 @@ def process_report_exec(re_report, report_match, text, channel_id):
         else:
             file_path = base_path + '.png'
             with open(file_path, 'w+b') as fd:
-                plot = report_client.plot_vis(df)
+                plot = report_client.plot_vis(df, request['labels'], request['metrics'])
                 plot.savefig(fd)
         slack_client.send_file(channel_id, file_path)
     else:
@@ -126,17 +126,17 @@ def reply(payload):
         slack_client.send_message(channel_id, metadata_client.list_data_sources(), thread_id)
     if "list labels" in text:
         hit = True
-        labels = metadata_client.list_labels(WORKSPACE)
+        labels = metadata_client.list_labels()
         send_tabulated_result(channel_id, 'Labels:\n-------\n', labels, thread_id)
     if "list metrics" in text:
         hit = True
-        metrics = metadata_client.list_metrics(WORKSPACE)
-        facts = metadata_client.list_facts(WORKSPACE)
+        metrics = metadata_client.list_metrics()
+        facts = metadata_client.list_facts()
         send_tabulated_result(channel_id, 'Metrics:\n-------\n', metrics, thread_id)
         send_tabulated_result(channel_id, 'Facts:\n-------\n', facts, thread_id)
     if "list insights" in text:
         hit = True
-        insights = metadata_client.list_insights(WORKSPACE)
+        insights = metadata_client.list_insights()
         send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id)
 
     re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|vis) ', re.I)

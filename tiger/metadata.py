@@ -6,22 +6,23 @@ from gooddata_sdk import GoodDataApiClient
 
 
 class Metadata:
-    def __init__(self, host, api_key):
+    def __init__(self, host, api_key, workspace_id):
         client = GoodDataApiClient(host=host, token=api_key)
         md_client = client.metadata_client
         self.org_model = organization_model_controller_api.OrganizationModelControllerApi(md_client)
         self.workspace_model = workspace_object_controller_api.WorkspaceObjectControllerApi(md_client)
+        self.workspace_id = workspace_id
 
     def list_workspaces(self):
         result = self.org_model.get_all_entities_workspaces(_check_return_type=False)
         workspaces = ""
         for workspace in result.data:
-            workspace_id = workspace['id']
+            self.workspace_id = workspace['id']
             workspace_name = workspace['attributes']['name']
             workspace_parent_id = ''
             if 'relationships' in workspace:
                 workspace_parent_id = workspace['relationships']['parent']['data']['id']
-            workspaces += f"- id={workspace_id} name={workspace_name} parent_workspace_id={workspace_parent_id}\n"
+            workspaces += f"- id={self.workspace_id} name={workspace_name} parent_self.workspace_id={workspace_parent_id}\n"
         return workspaces
 
     def list_data_sources(self):
@@ -44,18 +45,30 @@ class Metadata:
             'data': data
         }
 
-    def list_labels(self, workspace_id):
-        result = self.workspace_model.get_all_entities_labels(workspace_id, _check_return_type=False)
+    def list_labels(self):
+        result = self.workspace_model.get_all_entities_labels(self.workspace_id, _check_return_type=False)
         return self._get_entities_basic(result, 'label/')
 
-    def list_metrics(self, workspace_id):
-        result = self.workspace_model.get_all_entities_facts(workspace_id, _check_return_type=False)
+    def list_metrics(self):
+        result = self.workspace_model.get_all_entities_facts(self.workspace_id, _check_return_type=False)
         return self._get_entities_basic(result, 'metric/')
 
-    def list_facts(self, workspace_id):
-        result = self.workspace_model.get_all_entities_metrics(workspace_id, _check_return_type=False)
+    def list_facts(self):
+        result = self.workspace_model.get_all_entities_metrics(self.workspace_id, _check_return_type=False)
         return self._get_entities_basic(result, 'fact/')
 
-    def list_insights(self, workspace_id):
-        result = self.workspace_model.get_all_entities_visualization_objects(workspace_id, _check_return_type=False)
+    def list_insights(self):
+        result = self.workspace_model.get_all_entities_visualization_objects(self.workspace_id, _check_return_type=False)
         return self._get_entities_basic(result)
+
+    def get_label_title_by_id(self, label_id):
+        result = self.workspace_model.get_entity_labels(self.workspace_id, label_id)
+        return result.data['attributes']['title']
+
+    def get_fact_title_by_id(self, fact_id):
+        result = self.workspace_model.get_entity_facts(self.workspace_id, fact_id)
+        return result.data['attributes']['title']
+
+    def get_metric_title_by_id(self, metric_id):
+        result = self.workspace_model.get_entity_metrics(self.workspace_id, metric_id)
+        return result.data['attributes']['title']

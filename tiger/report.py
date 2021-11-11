@@ -4,38 +4,64 @@ import re
 from gooddata_pandas import GoodPandas
 import matplotlib.pyplot as plt
 
+from tiger.metadata import Metadata
+
 
 class Report:
-    def __init__(self, host, api_key, workspace_id):
+    def __init__(self, host, api_key, workspace_id, metadata_client: Metadata):
         self.gp = GoodPandas(host=host, token=api_key)
         self.frames = self.gp.data_frames(workspace_id)
+        self.metadata_client = metadata_client
+        self.workspace_id = workspace_id
 
-    @staticmethod
-    def parse_request(re_report, request):
+    def parse_request(self, re_report, request):
         query = re_report.sub('', request)
         query_re = re.compile(r'^(.*) BY (.*)$', re.I)
         query_match = query_re.search(query)
         if query_match:
+            metrics = [
+                {'id': m, 'short_id': m.replace('metric/', '').replace('fact/', '')}
+                for m in re.split(r',\s*', query_match.group(1))
+            ]
+            labels = [
+                {'id': ls, 'short_id': ls.replace('label/', '')}
+                for ls in re.split(r',\s*', query_match.group(2))
+            ]
+            labels = self.add_titles(labels, self.metadata_client.get_label_title_by_id)
+            metrics = self.add_titles(
+                [m for m in metrics if m['id'].startswith('metric/')],
+                self.metadata_client.get_metric_title_by_id
+            ) + self.add_titles(
+                [m for m in metrics if m['id'].startswith('fact/')],
+                self.metadata_client.get_fact_title_by_id
+            )
             return {
-                'metrics': re.split(r',\s*', query_match.group(1)),
-                'labels': re.split(r',\s*', query_match.group(2)),
+                'metrics': metrics,
+                'labels': labels,
             }
         else:
             return None
 
+    @staticmethod
+    def add_titles(entities, get_title_func):
+        for entity in entities:
+            entity['title'] = get_title_func(entity['short_id'])
+        return entities
+
     def execute(self, metrics, labels):
-        columns = dict(
-            first_label=labels[0],
-            first_metric=metrics[0],
-        )
+        columns = {
+            labels[0]['title']: labels[0]['id']
+        }
         if len(labels) == 2:
-            columns['second_label'] = labels[1]
+            columns[labels[1]['title']] = labels[1]['id']
+
+        columns[metrics[0]['title']] = metrics[0]['id']
         if len(metrics) == 2:
-            columns['second_metric'] = metrics[1]
-        indexed_df = self.frames.indexed(index_by=labels[0], columns=columns)
+            columns[metrics[1]['title']] = metrics[1]['id']
+        indexed_df = self.frames.indexed(index_by=labels[0]['id'], columns=columns)
         return indexed_df
 
     @staticmethod
-    def plot_vis(indexed_df):
-        plt.plot(indexed_df['first_label'], indexed_df['first_metric'])
+    def plot_vis(indexed_df, labels, metrics):
+        plt.plot(indexed_df[labels[0]['title']], indexed_df[metrics[0]['title']])
         return plt
