@@ -5,8 +5,10 @@
 import os
 import re
 import uuid
+import tempfile
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
+from tabulate import tabulate
 from coinbot import CoinBot
 from tiger.report import Report
 from tiger.slackclient import SlackClient
@@ -93,15 +95,16 @@ def message(payload):
         if request:
             df = report_client.execute(request['metrics'], request['labels'])
             if report_match.group(1) == 'tab':
-                file_path = '/tmp/' + str(uuid.uuid4()) + '.csv'
-                with open(file_path, 'w') as fd:
-                    df.to_csv(fd)
+                with tempfile.TemporaryFile("w+t", encoding="utf-8") as tf:
+                    tf.write(tabulate(df, headers='keys', tablefmt='psql', showindex="never"))
+                    tf.seek(0)
+                    slack_client.send_file(channel_id, tf)
             else:
                 file_path = '/tmp/' + str(uuid.uuid4()) + '.png'
                 with open(file_path, 'w+b') as fd:
                     plot = report_client.plot_vis(df)
                     plot.savefig(fd)
-            slack_client.send_file(channel_id, file_path)
+                slack_client.send_file(channel_id, file_path)
         else:
             slack_client.send_markdown_message(
                 channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
