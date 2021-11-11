@@ -152,6 +152,10 @@ def reply(payload):
         facts = metadata_client.list_facts(WORKSPACE)
         send_tabulated_result(channel_id, 'Metrics:\n-------\n' + metrics, thread_id)
         send_tabulated_result(channel_id, 'Facts:\n-------\n' + facts, thread_id)
+    if "list insights" in text:
+        hit = True
+        insights = metadata_client.list_insights(WORKSPACE)
+        send_tabulated_result(channel_id, 'Insights:\n-------\n' + insights, thread_id)
     if not hit:
         slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
 

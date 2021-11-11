@@ -55,3 +55,7 @@ class Metadata:
     def list_facts(self, workspace_id):
         result = self.workspace_model.get_all_entities_metrics(workspace_id, _check_return_type=False)
         return self._get_entities_basic(result)
+
+    def list_insights(self, workspace_id):
+        result = self.workspace_model.get_all_entities_visualization_objects(workspace_id, _check_return_type=False)
+        return self._get_entities_basic(result)
