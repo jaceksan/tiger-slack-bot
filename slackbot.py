@@ -94,7 +94,14 @@ def reply(payload):
     event = payload.get("event", {})
     text = event.get("text")
     channel_id = event.get("channel")
+    thread_id = event.get("thread_ts", None)
 
+    if "list data sources" in text.lower():
+        slack_client.send_markdown_message(
+            channel_id,
+            [metadata_client.list_workspaces()],
+            thread_ts=thread_ts
+        )
     slack_client.send_markdown_message(channel_id, ["Hello, thanks for mentioning me.\n"])
 
 
