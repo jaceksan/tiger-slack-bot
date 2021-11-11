@@ -108,7 +108,8 @@ def process_report_exec(metadata_client, re_report, report_match, text, channel_
             sns.set_theme(style="darkgrid")
             with tempfile.NamedTemporaryFile(mode="w+b", suffix="png") as fp:
                 plot = sns.lineplot(x=request['labels'][0]['title'], y=request['metrics'][0]['title'], data=df)
-                plot.savefig(fp)
+                fig = plot.get_figure()
+                fig.savefig(fp)
                 fp.seek(0)
                 slack_client.send_file(channel_id, fp)
                 return
