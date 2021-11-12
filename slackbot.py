@@ -5,7 +5,6 @@
 import os
 import re
 import time
-import uuid
 import tempfile
 import traceback
 import threading
@@ -13,11 +12,11 @@ from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from tabulate import tabulate
 from coinbot import CoinBot
-from tiger.report import Report
 from tiger.slackclient import SlackClient
 from tiger.metadata import Metadata
 import yaml
 from tiger.history import answer_from_history
+from tiger.report_exec import process_report_exec
 
 
 ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
@@ -88,35 +87,6 @@ def send_tabulated_result(channel_id, prefix, elements, thread_id, use_file=Fals
             channel_id,
             "```" + prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql') + "```",
             thread_id
-        )
-
-
-def process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id):
-    # Init Report(Pandas) SDK
-    report_client = Report(ENDPOINT, TOKEN, workspace_id, metadata_client)
-    request = report_client.parse_request(re_report, text)
-    if request:
-        df = report_client.execute(request['metrics'], request['labels'])
-        base_path = '/tmp/' + str(uuid.uuid4())
-        if report_match.group(1) == 'tab':
-            file_path = base_path + '.txt'
-            with open(file_path, 'wt') as fd:
-                fd.write(tabulate(df, headers='keys', tablefmt='psql', showindex="never"))
-        elif report_match.group(1) == 'csv':
-            file_path = base_path + '.csv'
-            with open(file_path, 'wt') as fd:
-                df.to_csv(fd, index=False)
-        else:
-            file_path = base_path + '.png'
-            print(f"Creating file {file_path} for {text}")
-            with open(file_path, 'w+b') as fd:
-                plot = report_client.plot_vis(df, request['labels'], request['metrics'])
-                plot.savefig(fd)
-            print(f"Finished file {file_path} for {text}")
-        slack_client.send_file(channel_id, file_path)
-    else:
-        slack_client.send_markdown_message(
-            channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
         )
 
 
@@ -224,8 +194,12 @@ def reply(payload):
         report_match = re_report.match(text)
         if report_match:
             hit = True
-            threading.Thread(target=process_report_exec,
-                             args=(metadata_client, re_report, report_match, text, channel_id, workspace_id))
+            t_id = threading.Thread(
+                target=process_report_exec,
+                args=(metadata_client, slack_client, re_report, report_match, text, channel_id, workspace_id),
+                daemon=True
+            )
+            t_id.start()
 #            process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id)
 
         if not hit:
