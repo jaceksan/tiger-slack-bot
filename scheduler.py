@@ -54,6 +54,7 @@ def alert():
                     slack_client.send_markdown_message(
                         TARGET_CHANNEL_ID, [msg]
                     )
+            i += 1
     print("Alert processing END. The time is: %s" % datetime.now())
 
 
