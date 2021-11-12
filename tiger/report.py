@@ -57,7 +57,7 @@ class Report:
         columns[metrics[0]['title']] = metrics[0]['id']
         if len(metrics) == 2:
             columns[metrics[1]['title']] = metrics[1]['id']
-        indexed_df = self.frames.indexed(index_by=dict(x=labels[0]['id']), columns=columns)
+        indexed_df = self.frames.indexed(index_by=labels[0]['id'], columns=columns)
         return indexed_df
 
     @staticmethod
