@@ -8,6 +8,7 @@ import time
 import uuid
 import tempfile
 import traceback
+import threading
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from tabulate import tabulate
@@ -223,7 +224,9 @@ def reply(payload):
         report_match = re_report.match(text)
         if report_match:
             hit = True
-            process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id)
+            threading.Thread(target=process_report_exec,
+                             args=(metadata_client, re_report, report_match, text, channel_id, workspace_id))
+#            process_report_exec(metadata_client, re_report, report_match, text, channel_id, workspace_id)
 
         if not hit:
             slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
