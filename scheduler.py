@@ -2,12 +2,11 @@
 # -*- coding: utf-8 -*-
 # (C) 2021 GoodData Corporation
 import uuid
-
 from apscheduler.schedulers.blocking import BlockingScheduler
 from datetime import datetime
 import os
+from pathlib import Path
 import csv
-
 from tiger.metadata import Metadata
 from tiger.report import Report
 from tiger.slackclient import SlackClient
@@ -27,6 +26,12 @@ metadata_client.workspace_id = WORKSPACE_ID
 
 def alert():
     print("Alert processing START. The time is: %s" % datetime.now())
+
+    done_file = '/tmp/scheduler_finished.txt'
+    if Path(done_file).exists():
+        print('Alert already sent, do nothing')
+        return
+
     report_client = Report(ENDPOINT, TOKEN, WORKSPACE_ID, metadata_client)
     df = report_client.execute(
         [{'id': 'metric/revenue', 'short_id': 'revenue', 'title': 'Revenue'}],
@@ -54,6 +59,9 @@ def alert():
                     slack_client.send_markdown_message(
                         TARGET_CHANNEL_ID, [msg]
                     )
+                    with open(done_file, 'w') as fp2:
+                        fp2.write('1')
+
             i += 1
     print("Alert processing END. The time is: %s" % datetime.now())
 
