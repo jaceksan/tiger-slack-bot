@@ -21,7 +21,8 @@ metadata_client = Metadata(ENDPOINT, TOKEN)
 metadata_client.workspace_id = WORKSPACE_ID
 
 
-def tick():
+def alert():
+    print("Alert processing START. The time is: %s" % datetime.now())
     report_client = Report(ENDPOINT, TOKEN, WORKSPACE_ID, metadata_client)
     df = report_client.execute(
         [{'id': 'metric/revenue', 'short_id': 'revenue', 'title': 'Revenue'}],
@@ -33,13 +34,14 @@ def tick():
         df.to_csv(fd, index=False)
 
     data = csv.reader(file_path)
-    print(data)
-    print("Tick. The time is: %s" % datetime.now())
+    for row in data:
+        print(row)
+    print("Alert processing END. The time is: %s" % datetime.now())
 
 
 if __name__ == "__main__":
     scheduler = BlockingScheduler(timezone="Europe/Prague")
-    scheduler.add_job(tick, 'interval', seconds=30)
+    scheduler.add_job(alert, 'interval', seconds=30)
 
     try:
         scheduler.start()
