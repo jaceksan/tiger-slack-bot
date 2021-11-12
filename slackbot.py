@@ -81,7 +81,7 @@ def send_tabulated_result(channel_id, prefix, elements, thread_id, use_file=Fals
             msg = prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql')
             fp.write(msg.encode('utf-8'))
             fp.seek(0)
-            slack_client.send_file(channel_id, fp, thread_ts=thread_id)
+            slack_client.send_file(channel_id, fp, 'result.txt', thread_ts=thread_id)
     else:
         slack_client.send_message(
             channel_id,
