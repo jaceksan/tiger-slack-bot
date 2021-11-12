@@ -3,7 +3,7 @@ import uuid
 import traceback
 from tabulate import tabulate
 from tiger.report import Report, MetadataNotFound
-from gooddata_metadata_client.exceptions import NotFoundException
+from gooddata_metadata_client.exceptions import ApiException
 
 ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
 TOKEN = os.environ.get('TIGER_API_TOKEN')
@@ -45,13 +45,14 @@ def process_report_exec(metadata_client, slack_client, re_report, report_match, 
             slack_client.send_markdown_message(
                 channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
             )
-    except NotFoundException as nfe:
+    except ApiException as nfe:
         print("Got you")
         msg = str(nfe.body)
         try:
             msg = f"{nfe.body['detail']} - {nfe.body['title']}"
             print("Have detail")
-        except:
+        except Exception as e:
+            print(f"Have detail failed - {str(e)}")
             pass
         slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed.\n{msg}\n"])
     except MetadataNotFound as e:
