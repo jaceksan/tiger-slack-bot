@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # (C) 2021 GoodData Corporation
 
-from gooddata_metadata_client.api import organization_model_controller_api, workspace_object_controller_api
+from gooddata_metadata_client.api import organization_model_controller_api, workspace_object_controller_api, \
+    data_source_actions_controller_api
 from gooddata_sdk import GoodDataApiClient
 
 
@@ -11,6 +12,7 @@ class Metadata:
         md_client = client.metadata_client
         self.org_model = organization_model_controller_api.OrganizationModelControllerApi(md_client)
         self.workspace_model = workspace_object_controller_api.WorkspaceObjectControllerApi(md_client)
+        self.data_source_model = data_source_actions_controller_api.DataSourceActionsControllerApi(md_client)
         self.workspace_id = None
 
     def get_workspace_ids(self):
@@ -77,3 +79,6 @@ class Metadata:
     def get_metric_title_by_id(self, metric_id):
         result = self.workspace_model.get_entity_metrics(self.workspace_id, metric_id)
         return result.data['attributes']['title']
+
+    def invalid_caches(self, data_source_id):
+        self.data_source_model.register_upload_notification(data_source_id)
