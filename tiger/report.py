@@ -54,7 +54,7 @@ class Report:
                 # Regex to workaround local identifier issue
                 title = get_title_func(entity['short_id'])
             except Exception as e:
-                print(f'add_titles: {str(e)}')
+                print(f'add_titles: {repr(e)}')
                 if '(404)' in str(e):
                     raise MetadataNotFound(entity)
                 raise e
