@@ -50,18 +50,11 @@ class Report:
     @staticmethod
     def add_titles(entities, get_title_func, re_sanitize=None):
         for entity in entities:
-            try:
-                # Regex to workaround local identifier issue
-                title = get_title_func(entity['short_id'])
-            except Exception as e:
-                print(f'add_titles: {repr(e)}')
-                if '(404)' in str(e):
-                    raise MetadataNotFound(entity)
-                raise e
-            else:
-                if re_sanitize:
-                    title = re_sanitize.sub('_', title)
-                entity['title'] = title
+            # Regex to workaround local identifier issue
+            title = get_title_func(entity['short_id'])
+            if re_sanitize:
+                title = re_sanitize.sub('_', title)
+            entity['title'] = title
         return entities
 
     def execute(self, metrics, labels):
