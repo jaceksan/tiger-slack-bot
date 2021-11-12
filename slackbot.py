@@ -4,6 +4,7 @@
 
 import os
 import re
+import time
 import uuid
 import tempfile
 import traceback
@@ -106,9 +107,11 @@ def process_report_exec(metadata_client, re_report, report_match, text, channel_
                 df.to_csv(fd, index=False)
         else:
             file_path = base_path + '.png'
+            print(f"Creating file {file_path} for {text}")
             with open(file_path, 'w+b') as fd:
                 plot = report_client.plot_vis(df, request['labels'], request['metrics'])
                 plot.savefig(fd)
+            print(f"Finished file {file_path} for {text}")
         slack_client.send_file(channel_id, file_path)
     else:
         slack_client.send_markdown_message(
@@ -119,7 +122,8 @@ def process_report_exec(metadata_client, re_report, report_match, text, channel_
 @slack_events_adapter.on("app_mention")
 def reply(payload):
     """Parse messages only when the bot is mentioned"""
-    print(f"Event: app_mention, payload: {payload}")
+    ts = time.time()
+    print(f"Event: app_mention, ts: {ts} payload: {payload}")
 
     event = payload.get("event", {})
     text = event.get("text")
@@ -226,6 +230,8 @@ def reply(payload):
     except Exception:
         print(traceback.format_exc())
         slack_client.send_markdown_message(channel_id, [f"Something went wrong user <@{source_user_id}>, fix me\n"])
+
+    print(f"Event: app_mention, ts: {ts} - Finished")
 
 
 @app.route("/")
