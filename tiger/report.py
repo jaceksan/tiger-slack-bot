@@ -78,6 +78,7 @@ class Report:
 
     @staticmethod
     def plot_vis(indexed_df, labels, metrics):
+        plt.close()
         ax = plt.gca()
         print(f"Plot-df: {indexed_df}")
         print(f"Y-Metric-1: {metrics[0]['title']}")
