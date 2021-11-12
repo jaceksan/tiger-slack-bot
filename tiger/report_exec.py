@@ -47,9 +47,9 @@ def process_report_exec(metadata_client, slack_client, re_report, report_match, 
             )
     except NotFoundException as nfe:
         print("Got you")
-        msg = nfe.reason
+        msg = str(nfe.body)
         try:
-            msg = nfe.reason['detail']
+            msg = f"{nfe.body['detail']} - {nfe.body['title']}"
             print("Have detail")
         except:
             pass
