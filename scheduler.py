@@ -47,6 +47,7 @@ def alert():
         i = 1
         for row in data:
             if i > 1:
+                print(f'{float(row[1])} - {THRESHOLD} - {str(row)}')
                 if float(row[1]) > THRESHOLD:
                     msg = f'Region {row[0]} achieved {THRESHOLD} revenue, congratz!\n'
                     print(msg)
