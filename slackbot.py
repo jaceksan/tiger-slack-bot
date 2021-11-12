@@ -43,7 +43,7 @@ def flip_coin(channel):
 
 
 def slap_the_slackbot(channel):
-    slack_client.send_markdown_message(channel, ["Zmlkni Slackbote!\n"])
+    slack_client.send_markdown_message(channel, ["Shut up, Slackbot!\n"])
 
 
 @slack_events_adapter.on("message")
