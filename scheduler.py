@@ -27,7 +27,7 @@ metadata_client.workspace_id = WORKSPACE_ID
 def alert():
     print("Alert processing START. The time is: %s" % datetime.now())
 
-    done_file = '/tmp/scheduler_finished.txt'
+    done_file = '/tmp/scheduler_finished2.txt'
     if Path(done_file).exists():
         print('Alert already sent, do nothing')
         return
