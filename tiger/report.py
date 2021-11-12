@@ -26,7 +26,11 @@ class Report:
                 {'id': ls, 'short_id': ls.replace('label/', '')}
                 for ls in re.split(r',\s*', query_match.group(2))
             ]
-            labels = self.add_titles(labels, self.metadata_client.get_label_title_by_id)
+            labels = self.add_titles(
+                labels,
+                self.metadata_client.get_label_title_by_id,
+                re.compile(r'[^.a-z0-9_-]+', re.I)
+            )
             metrics = self.add_titles(
                 [m for m in metrics if m['id'].startswith('metric/')],
                 self.metadata_client.get_metric_title_by_id
@@ -42,9 +46,13 @@ class Report:
             return None
 
     @staticmethod
-    def add_titles(entities, get_title_func):
+    def add_titles(entities, get_title_func, re_sanitize=None):
         for entity in entities:
-            entity['title'] = get_title_func(entity['short_id'])
+            # Regex to workaround local identifier issue
+            title = get_title_func(entity['short_id'])
+            if re_sanitize:
+                title = re_sanitize.sub('_', title)
+            entity['title'] = title
         return entities
 
     def execute(self, metrics, labels):
