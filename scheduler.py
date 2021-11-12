@@ -15,7 +15,7 @@ ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
 TOKEN = os.environ.get('TIGER_API_TOKEN')
 WORKSPACE_ID = 'demo'
 TARGET_CHANNEL_ID = 'C02M4PF2R8C'
-THRESHOLD = 1000000
+THRESHOLD = 260000
 DATA_SOURCE_ID = 'pg_staging-demo'
 
 # Initialize a Web API client
