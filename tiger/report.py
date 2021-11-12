@@ -33,10 +33,12 @@ class Report:
             )
             metrics = self.add_titles(
                 [m for m in metrics if m['id'].startswith('metric/')],
-                self.metadata_client.get_metric_title_by_id
+                self.metadata_client.get_metric_title_by_id,
+                re.compile(r'[^.a-z0-9_-]+', re.I)
             ) + self.add_titles(
                 [m for m in metrics if m['id'].startswith('fact/')],
-                self.metadata_client.get_fact_title_by_id
+                self.metadata_client.get_fact_title_by_id,
+            re.compile(r'[^.a-z0-9_-]+', re.I)
             )
             return {
                 'metrics': metrics,
