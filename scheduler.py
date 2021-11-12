@@ -35,8 +35,8 @@ def alert():
 
     with open(file_path) as fp:
         data = csv.reader(fp)
-    for row in data:
-        print(row)
+        for row in data:
+            print(row)
     print("Alert processing END. The time is: %s" % datetime.now())
 
 
