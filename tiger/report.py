@@ -55,7 +55,7 @@ class Report:
                 title = get_title_func(entity['short_id'])
             except Exception as e:
                 print(f'add_titles: {str(e)}')
-                if 'gooddata_metadata_client.exceptions.NotFoundException' in str(e):
+                if str(e).startswith('(404)'):
                     raise MetadataNotFound(entity)
             else:
                 if re_sanitize:
