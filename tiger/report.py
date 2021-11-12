@@ -57,6 +57,7 @@ class Report:
                 print(f'add_titles: {str(e)}')
                 if '(404)' in str(e):
                     raise MetadataNotFound(entity)
+                raise e
             else:
                 if re_sanitize:
                     title = re_sanitize.sub('_', title)
