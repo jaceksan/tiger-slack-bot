@@ -56,9 +56,9 @@ def answer_from_history(q_user_id, text):
     if rand > 0.8 + (0.2 * (len(results) / (len(atoms) + 1))):
         for atom, _, _ in results:
             cache.put(atom, q_user_id)
-        return False, "Lucky you, I answer even boring questions"
+        return False, "Lucky you, I answer even boring questions (you have asked the same question few seconds ago)"
 
-    message = "I am thinking now. Ask"
+    message = "I am not going to answer, you are asking the same question too often. Ask"
     for _, text, c_res in results:
         users = " or ".join([f"<@{user}>" for user, _ in c_res])
         message += f"\n\t{users} for {text}"
