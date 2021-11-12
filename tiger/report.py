@@ -50,11 +50,16 @@ class Report:
     @staticmethod
     def add_titles(entities, get_title_func, re_sanitize=None):
         for entity in entities:
-            # Regex to workaround local identifier issue
-            title = get_title_func(entity['short_id'])
-            if re_sanitize:
-                title = re_sanitize.sub('_', title)
-            entity['title'] = title
+            try:
+                # Regex to workaround local identifier issue
+                title = get_title_func(entity['short_id'])
+            except Exception as e:
+                if 'gooddata_metadata_client.exceptions.NotFoundException' in str(e):
+                    raise MetadataNotFound(entity)
+            else:
+                if re_sanitize:
+                    title = re_sanitize.sub('_', title)
+                entity['title'] = title
         return entities
 
     def execute(self, metrics, labels):
@@ -80,3 +85,9 @@ class Report:
             print(f"Y-Metric-2: {metrics[1]['title']}")
             indexed_df.plot(kind='line', x=labels[0]['title'], y=metrics[1]['title'], ax=ax)
         return plt
+
+
+class MetadataNotFound(Exception):
+    def __init__(self, entity):
+        self.entity = entity
+        super().__init__(f"Entity {entity['id']} ({entity['title']}) does not exist in Metadata")
