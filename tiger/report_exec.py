@@ -25,6 +25,10 @@ def process_report_exec(metadata_client, slack_client, re_report, report_match, 
                 file_path = base_path + '.csv'
                 with open(file_path, 'wt') as fd:
                     df.to_csv(fd, index=False)
+            elif report_match.group(1) == 'xls':
+                file_path = base_path + '.xls'
+                with open(file_path, 'wt') as fd:
+                    df.to_excel(fd, index=False)
             else:
                 file_path = base_path + '.png'
                 print(f"Creating file {file_path} for {text}")

@@ -147,6 +147,7 @@ def reply(payload):
                     "* Types:\n" +
                     "\t* `tab` - pretty printed table\n" +
                     "\t* `csv` - CSV file as attachment\n" +
+                    "\t* `xls` - Excel file as attachment\n" +
                     "\t* `vis` - chart rendered by `matplotlib`\n" +
                     ":raised_hands:\n"
                 ]
@@ -190,10 +191,14 @@ def reply(payload):
             insights = metadata_client.list_insights()
             send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id, as_file_flag)
 
-        re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|vis) ', re.I)
+        re_report = re.compile(r'^<[^>]+>\s*execute_(tab|csv|xls|vis) ', re.I)
         report_match = re_report.match(text)
         if report_match:
             hit = True
+            slack_client.send_markdown_message(
+                channel_id,
+                [f"You report execution was accepted and queued, please, wait for result.\n"]
+            )
             t_id = threading.Thread(
                 target=process_report_exec,
                 args=(metadata_client, slack_client, re_report, report_match, text, channel_id, workspace_id),
