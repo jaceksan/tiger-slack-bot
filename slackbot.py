@@ -6,6 +6,7 @@ import os
 import re
 import uuid
 import tempfile
+import traceback
 from flask import Flask
 from slackeventsapi import SlackEventAdapter
 from tabulate import tabulate
@@ -223,6 +224,7 @@ def reply(payload):
         if not hit:
             slack_client.send_markdown_message(channel_id, [f"Hello, thanks for mentioning me <@{source_user_id}>.\n"])
     except Exception:
+        print(traceback.format_exc())
         slack_client.send_markdown_message(channel_id, [f"Something went wrong user <@{source_user_id}>, fix me\n"])
 
 
