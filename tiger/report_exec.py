@@ -43,4 +43,4 @@ def process_report_exec(metadata_client, slack_client, re_report, report_match, 
             split_text = text_i.split(' ', maxsplit=1)
             if len(split_text) > 1:
                 text = split_text[1]
-        slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed with {str(e)}\n"])
+        slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed.\n"])
