@@ -1,4 +1,6 @@
 import os
+import io
+import json
 import uuid
 import traceback
 from tabulate import tabulate
@@ -46,14 +48,20 @@ def process_report_exec(metadata_client, slack_client, re_report, report_match, 
                 channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
             )
     except ApiException as nfe:
-        print("Got you")
+        print(f"Got you - {type(nfe.body)}")
         msg = str(nfe.body)
+        body_io_str = None
         try:
-            msg = f"{nfe.body['detail']} - {nfe.body['title']}"
+            body_io_str = io.StringIO(nfe.body)
+            body_dict = json.load(body_io_str)
+            msg = f"{body_dict['detail']} - {body_dict['title']}"
             print("Have detail")
         except Exception as e:
             print(f"Have detail failed - {str(e)}")
             pass
+        finally:
+            if body_io_str:
+                body_io_str.close()
         slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed.\n{msg}\n"])
     except MetadataNotFound as e:
         slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed.\n{str(e)}\n"])
