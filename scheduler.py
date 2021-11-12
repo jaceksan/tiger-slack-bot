@@ -33,7 +33,8 @@ def alert():
     with open(file_path, 'wt') as fd:
         df.to_csv(fd, index=False)
 
-    data = csv.reader(file_path)
+    with open(file_path) as fp:
+        data = csv.reader(fp)
     for row in data:
         print(row)
     print("Alert processing END. The time is: %s" % datetime.now())
