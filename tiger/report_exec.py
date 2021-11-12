@@ -36,6 +36,11 @@ def process_report_exec(metadata_client, slack_client, re_report, report_match, 
             slack_client.send_markdown_message(
                 channel_id, ['ERROR: invalid execute request, valid is {metric} BY {dimension}\n']
             )
-    except Exception:
+    except Exception as e:
         print(traceback.format_exc())
-        slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed.\n"])
+        text_i: str = text
+        if not text_i.startswith("execute"):
+            split_text = text_i.split(' ', maxsplit=1)
+            if len(split_text) > 1:
+                text = split_text[1]
+        slack_client.send_markdown_message(channel_id, [f"Execution of request `{text}` failed with {str(e)}\n"])
