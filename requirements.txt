@@ -14,7 +14,5 @@ matplotlib >= 3.4.2
 PyYAML==5.3.1
 openpyxl==3.0.9
 # sdk
-sdk/gooddata-afm-client-1.0.0.tar.gz
-sdk/gooddata-metadata-client-1.0.0.tar.gz
-sdk/gooddata-sdk-0.1.tar.gz
-sdk/gooddata-pandas-0.1.tar.gz
+gooddata-sdk==0.7.0
+gooddata-pandas==0.7.0
