@@ -19,7 +19,7 @@ from tiger.history import answer_from_history
 from tiger.report_exec import process_report_exec
 
 
-ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
+ENDPOINT = 'https://bettermee.anywhere.gooddata.com'
 TOKEN = os.environ.get('TIGER_API_TOKEN')
 
 # Initialize a Flask app to host the events adapter
