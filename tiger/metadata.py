@@ -8,8 +8,8 @@ import gooddata_metadata_client.apis as metadata_apis
 class Metadata:
     def __init__(self, host, api_key):
         sdk = GoodDataSdk.create(host, api_key)
-        self.entities_api = metadata_apis.EntitiesApi(sdk._client)
-        self.actions_api = metadata_apis.ActionsApi(sdk._client)
+        self.entities_api = metadata_apis.EntitiesApi(sdk._client.metadata_client)
+        self.actions_api = metadata_apis.ActionsApi(sdk._client.metadata_client)
         self.workspace_id = None
 
     def get_workspace_ids(self):
