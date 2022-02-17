@@ -2,7 +2,7 @@
 def generate_help(slack_client, text, channel_id, thread_id):
     if "help compute" in text:
         help_hints = [
-            ":speech_balloon: Thank you for asking, here is detailed doc about `compute_(tab,csv,vis)`:\n\n" +
+            ":speech_balloon: Thank you for asking, here is detailed doc about `compute (tab,csv,vis)`:\n\n" +
             "* Usage: `compute (tab,csv,vis)` metric1, metric2 BY label1, label2\n" +
             "\t* You can use 2 metrics but only 1 label in case of vis(ualization)\n" +
             "\t* metric/label must be in form of ID with prefix\n" +
