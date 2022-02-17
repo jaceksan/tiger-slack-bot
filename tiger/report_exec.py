@@ -37,8 +37,11 @@ def process_compute_execution(metadata_client, slack_client, report_match, text,
                 target_file_name = 'insight.png'
                 print(f"Creating file {file_path} for {text}")
                 with open(file_path, 'w+b') as fd:
-                    plot = report_client.plot_vis(df, request['labels'], request['metrics'])
-                    plot.savefig(fd)
+                    if report_match.group(1) == 'line':
+                        ax = report_client.plot_line(df, request['labels'][0]['title'])
+                    else:
+                        ax = report_client.plot_bar(df, request['labels'][0]['title'])
+                    ax.figure.savefig(fd)
                 print(f"Finished file {file_path} for {text}")
             slack_client.send_file(channel_id, file_path, target_file_name)
         else:

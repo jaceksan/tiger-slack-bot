@@ -1,10 +1,18 @@
 # -*- coding: utf-8 -*-
 # (C) 2021 GoodData Corporation
 import re
+from typing import Optional
+
+import pandas as pd
+from pandas.plotting._matplotlib.style import get_standard_colors
+import matplotlib.axes
 from gooddata_pandas import GoodPandas
 import matplotlib.pyplot as plt
 from tiger.constants import ENDPOINT, TOKEN
 from tiger.metadata import Metadata
+
+plt.rcParams["figure.figsize"] = [19.8, 10.8]
+plt.rcParams.update({'font.size': 18})
 
 
 class Report:
@@ -58,29 +66,71 @@ class Report:
         return entities
 
     def execute(self, metrics, labels):
-        columns = {
-            labels[0]['title']: labels[0]['id']
-        }
-        if len(labels) == 2:
-            columns[labels[1]['title']] = labels[1]['id']
-
-        columns[metrics[0]['title']] = metrics[0]['id']
-        if len(metrics) == 2:
-            columns[metrics[1]['title']] = metrics[1]['id']
+        columns = {}
+        for i in range(1, len(labels)):
+            columns[labels[i]['title']] = labels[i]['id']
+        for i in range(len(metrics)):
+            columns[metrics[i]['title']] = metrics[i]['id']
         indexed_df = self.frames.indexed(index_by=labels[0]['id'], columns=columns)
         return indexed_df
 
     @staticmethod
-    def plot_vis(indexed_df, labels, metrics):
+    def plot_bar(data: pd.DataFrame, xaxis_title: str):
         plt.close()
-        ax = plt.gca()
-        print(f"Plot-df: {indexed_df}")
-        print(f"Y-Metric-1: {metrics[0]['title']}")
-        indexed_df.plot(kind='line', x=labels[0]['title'], y=metrics[0]['title'], ax=ax)
-        if len(metrics) == 2:
-            print(f"Y-Metric-2: {metrics[1]['title']}")
-            indexed_df.plot(kind='line', x=labels[0]['title'], y=metrics[1]['title'], ax=ax)
-        return plt
+        ax = data.plot.bar(rot=0)
+        ax.set_xlabel(xlabel=xaxis_title)
+        return ax
+
+    @staticmethod
+    def plot_line(
+        data: pd.DataFrame,
+        xaxis_title: str,
+        spacing: float = 0.1,
+        **kwargs
+    ) -> Optional[matplotlib.axes.Axes]:
+        """Plot multiple Y axes on the same chart with same x axis.
+
+        Args:
+            data: dataframe which contains x and y columns
+            xaxis_title: title of X axis
+            spacing: spacing between the plots
+            **kwargs: keyword arguments to pass to data.plot()
+
+        Returns:
+            a matplotlib.axes.Axes object returned from data.plot()
+        """
+        # Get default color style from pandas - can be changed to any other color list
+        y = data.columns
+        colors = get_standard_colors(num_colors=len(y))
+
+        if "legend" not in kwargs:
+            kwargs["legend"] = False  # prevent multiple legends
+
+        # Reset plt
+        plt.close()
+
+        # First axis
+        ax = data.plot(x=None, y=y[0], color=colors[0], **kwargs)
+        ax.set_xlabel(xlabel=xaxis_title)
+        ax.set_ylabel(ylabel=y[0])
+        lines, labels = ax.get_legend_handles_labels()
+
+        for i in range(1, len(y)):
+            # Multiple y-axes
+            ax_new = ax.twinx()
+            ax_new.spines["right"].set_position(("axes", 1 + spacing * (i - 1)))
+            data.plot(
+                ax=ax_new, x=None, y=y[i], color=colors[i % len(colors)], **kwargs
+            )
+            ax_new.set_ylabel(ylabel=y[i])
+
+            # Proper legend position
+            line, label = ax_new.get_legend_handles_labels()
+            lines += line
+            labels += label
+
+        ax.legend(lines, labels, loc=0)
+        return ax
 
 
 class MetadataNotFound(Exception):
