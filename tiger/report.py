@@ -3,13 +3,13 @@
 import re
 from gooddata_pandas import GoodPandas
 import matplotlib.pyplot as plt
-
+from tiger.constants import ENDPOINT, TOKEN
 from tiger.metadata import Metadata
 
 
 class Report:
-    def __init__(self, host, api_key, workspace_id, metadata_client: Metadata):
-        self.gp = GoodPandas(host=host, token=api_key)
+    def __init__(self, workspace_id, metadata_client: Metadata):
+        self.gp = GoodPandas(ENDPOINT, TOKEN)
         self.frames = self.gp.data_frames(workspace_id)
         self.metadata_client = metadata_client
 

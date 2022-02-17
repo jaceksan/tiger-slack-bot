@@ -2,6 +2,8 @@
 # (C) 2021 GoodData Corporation
 
 import os
+import tempfile
+from tabulate import tabulate
 from slack import WebClient
 
 
@@ -46,3 +48,17 @@ class SlackClient:
             title=file_name,
             **payload
         )
+
+    def send_tabulated_result(self, channel_id, prefix, elements, thread_id, use_file=False):
+        if use_file:
+            with tempfile.NamedTemporaryFile(mode="w+b", suffix="txt") as fp:
+                msg = prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql')
+                fp.write(msg.encode('utf-8'))
+                fp.seek(0)
+                self.send_file(channel_id, fp, 'result.txt', thread_ts=thread_id)
+        else:
+            self.send_message(
+                channel_id,
+                "```" + prefix + tabulate(elements['data'], headers=elements['headers'], tablefmt='psql') + "```",
+                thread_id
+            )

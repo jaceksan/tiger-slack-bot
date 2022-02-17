@@ -1,21 +1,19 @@
-import os
 import io
 import json
 import uuid
 import traceback
 from tabulate import tabulate
+
+from tiger.constants import RE_COMPUTE
 from tiger.report import Report, MetadataNotFound
 from gooddata_metadata_client.exceptions import ApiException
 
-ENDPOINT = 'https://hackaton.anywhere.gooddata.com'
-TOKEN = os.environ.get('TIGER_API_TOKEN')
 
-
-def process_report_exec(metadata_client, slack_client, re_report, report_match, text, channel_id, workspace_id):
+def process_compute_execution(metadata_client, slack_client, report_match, text, channel_id, workspace_id):
     try:
         # Init Report(Pandas) SDK
-        report_client = Report(ENDPOINT, TOKEN, workspace_id, metadata_client)
-        request = report_client.parse_request(re_report, text)
+        report_client = Report(workspace_id, metadata_client)
+        request = report_client.parse_request(RE_COMPUTE, text)
         if request:
             df = report_client.execute(request['metrics'], request['labels'])
             base_path = '/tmp/' + str(uuid.uuid4())

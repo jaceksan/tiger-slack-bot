@@ -4,10 +4,12 @@
 from gooddata_sdk import GoodDataSdk
 import gooddata_metadata_client.apis as metadata_apis
 
+from tiger.constants import ENDPOINT, TOKEN
+
 
 class Metadata:
-    def __init__(self, host, api_key):
-        sdk = GoodDataSdk.create(host, api_key)
+    def __init__(self):
+        sdk = GoodDataSdk.create(ENDPOINT, TOKEN)
         self.entities_api = metadata_apis.EntitiesApi(sdk._client.metadata_client)
         self.actions_api = metadata_apis.ActionsApi(sdk._client.metadata_client)
         self.workspace_id = None
