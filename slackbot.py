@@ -123,25 +123,25 @@ def generate_help(text, channel_id, thread_id):
 
 def handle_lists(metadata_client, text, channel_id, thread_id, as_file_flag):
     hit = False
-    if "list workspaces" in text:
+    if "workspaces" in text:
         hit = True
         workspaces = metadata_client.list_workspaces()
         send_tabulated_result(channel_id, 'Workspaces:\n-------\n', workspaces, thread_id, as_file_flag)
-    if "list data sources" in text:
+    if "data sources" in text:
         hit = True
         data_sources = metadata_client.list_data_sources()
         send_tabulated_result(channel_id, 'Data sources:\n-------\n', data_sources, thread_id, as_file_flag)
-    if "list labels" in text:
+    if "labels" in text:
         hit = True
         labels = metadata_client.list_labels()
         send_tabulated_result(channel_id, 'Labels:\n-------\n', labels, thread_id, as_file_flag)
-    if "list metrics" in text:
+    if "metrics" in text:
         hit = True
         metrics = metadata_client.list_metrics()
         facts = metadata_client.list_facts()
         send_tabulated_result(channel_id, 'Metrics:\n-------\n', metrics, thread_id, as_file_flag)
         send_tabulated_result(channel_id, 'Facts:\n-------\n', facts, thread_id, as_file_flag)
-    if "list insights" in text:
+    if "insights" in text:
         hit = True
         insights = metadata_client.list_insights()
         send_tabulated_result(channel_id, 'Insights:\n-------\n', insights, thread_id, as_file_flag)
